@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Namaz Times - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f5f7fa; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
+  <header class="bg-green-700 text-white py-4 px-6 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Namaz Times</h1>
+    <div id="auth-section" class="flex items-center space-x-4"></div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 flex-1">
+    <div>
+      <select id="masjid-select" class="bg-green-100 text-green-800 font-medium py-2 px-4 rounded-lg mb-4">
+        <option value="">Choose nearby masjid</option>
+      </select>
+      <button id="add-masjid-btn" class="hidden bg-green-600 text-white py-2 px-4 rounded-lg mb-4">Add/Edit Masjid</button>
+      <button id="add-prayer-btn" class="hidden bg-yellow-600 text-white py-2 px-4 rounded-lg mb-4">Add/Edit Prayer Times</button>
+    </div>
+    <div id="prayer-times" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+  </main>
+
+  <footer class="bg-green-800 text-white py-4 text-center text-sm">
+    <p>© 2023 Namaz Times App</p>
+    <p class="text-green-200 mt-1">Prayer times calculated for your selected masjid</p>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
+      authDomain: "namaz-times-app.firebaseapp.com",
+      projectId: "namaz-times-app",
+      storageBucket: "namaz-times-app.firebasestorage.app",
+      messagingSenderId: "974582220585",
+      appId: "1:974582220585:web:092a933942836566f95938",
+      measurementId: "G-3CTLSN6BLS"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const authSection = document.getElementById('auth-section');
+    const masjidSelect = document.getElementById('masjid-select');
+    const addMasjidBtn = document.getElementById('add-masjid-btn');
+    const addPrayerBtn = document.getElementById('add-prayer-btn');
+    const prayerTimesDiv = document.getElementById('prayer-times');
+
+    // Show login or user info
+    auth.onAuthStateChanged(async user => {
+      authSection.innerHTML = '';
+      if (user) {
+        // Show user email and logout button
+        const userEmail = document.createElement('span');
+        userEmail.textContent = user.email;
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.className = 'bg-red-600 px-3 py-1 rounded hover:bg-red-700';
+        logoutBtn.onclick = () => auth.signOut();
+        authSection.appendChild(userEmail);
+        authSection.appendChild(logoutBtn);
+
+        // Check user role and show buttons accordingly
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          const role = userDoc.data().role;
+          if (role === 'superadmin') {
+            addMasjidBtn.classList.remove('hidden');
+            addPrayerBtn.classList.remove('hidden');
+            loadMasjids(); // Load all masjids
+          } else if (role === 'masjidAdmin') {
+            addMasjidBtn.classList.remove('hidden');
+            addPrayerBtn.classList.remove('hidden');
+            loadMasjids([userDoc.data().masjidId]); // Load only assigned masjid
+          } else {
+            addMasjidBtn.classList.add('hidden');
+            addPrayerBtn.classList.add('hidden');
+            loadMasjids(); // Normal user sees all masjids
+          }
+        } else {
+          addMasjidBtn.classList.add('hidden');
+          addPrayerBtn.classList.add('hidden');
+          loadMasjids(); // No role info, treat as normal user
+        }
+      } else {
+        // Show login button
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Login';
+        loginBtn.className = 'bg-green-600 px-3 py-1 rounded hover:bg-green-700';
+        loginBtn.onclick = () => window.location.href = 'login.html';
+        authSection.appendChild(loginBtn);
+
+        addMasjidBtn.classList.add('hidden');
+        addPrayerBtn.classList.add('hidden');
+        loadMasjids(); // Load all masjids for guests
+      }
+    });
+
+    // Load masjids, optionally filtered by IDs
+    async function loadMasjids(filterIds) {
+      let query = db.collection('masjids');
+      if (filterIds && filterIds.length > 0) {
+        query = query.where(firebase.firestore.FieldPath.documentId(), 'in', filterIds);
+      }
+      const snapshot = await query.get();
+      masjidSelect.innerHTML = '<option value="">Choose nearby masjid</option>';
+      snapshot.forEach(doc => {
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = doc.data().name;
+        masjidSelect.appendChild(option);
+      });
+    }
+
+    // Load prayer times when masjid selected
+    masjidSelect.addEventListener('change', async () => {
+      const masjidId = masjidSelect.value;
+      if (!masjidId) {
+        prayerTimesDiv.innerHTML = '';
+        return;
+      }
+      const doc = await db.collection('masjids').doc(masjidId).get();
+      if (!doc.exists) {
+        prayerTimesDiv.innerHTML = '<p>No prayer times found.</p>';
+        return;
+      }
+      const data = doc.data();
+      // Render prayer times (simplified)
+      prayerTimesDiv.innerHTML = `
+        <div class="prayer-card">
+          <div>
+            <h3>Fajr</h3>
+            <p>${data.Fajr || 'N/A'}</p>
+          </div>
+          <div>
+            <h3>Dhuhr</h3>
+            <p>${data.Dhuhr || 'N/A'}</p>
+          </div>
+          <div>
+            <h3>Asr</h3>
+            <p>${data.Asr || 'N/A'}</p>
+          </div>
+          <div>
+            <h3>Maghrib</h3>
+            <p>${data.Maghrib || 'N/A'}</p>
+          </div>
+          <div>
+            <h3>Isha</h3>
+            <p>${data.Isha || 'N/A'}</p>
+          </div>
+          <div>
+            <h3>Jumuah</h3>
+            <p>${data.Jumuah || 'N/A'}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    // TODO: Add event listeners and modals for add/edit masjid and prayer times,
+    // visible only if user is masjidAdmin or superadmin.
+
+  </script>
+</body>
+</html>
