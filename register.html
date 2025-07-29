@@ -26,10 +26,11 @@
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getAuth, createUser WithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+    import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
@@ -42,9 +43,9 @@
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const registerBtn = document.getElementById('register-btn');
     const errorMsg = document.getElementById('error-msg');
@@ -75,81 +76,61 @@
       }
     });
 
-registerBtn.addEventListener('click', () => {
-  const firstName = document.getElementById('first-name').value.trim();
-  const lastName = document.getElementById('last-name').value.trim();
-  const dob = dobInput.value;
-  const age = ageInput.value;
-  const contactNumber = document.getElementById('contact-number').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
+    registerBtn.addEventListener('click', () => {
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const dob = dobInput.value;
+      const age = ageInput.value;
+      const contactNumber = document.getElementById('contact-number').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
 
-  errorMsg.textContent = '';
-  successMsg.classList.add('hidden'); // Hide success message initially
-  if (!firstName || !lastName || !dob || !age || !contactNumber || !email || !password || !confirmPassword) {
-    errorMsg.textContent = 'Please fill all fields.';
-    return;
-  }
-  if (password !== confirmPassword) {
-    errorMsg.textContent = 'Passwords do not match.';
-    return;
-  }
-  if (!validatePassword(password)) {
-    errorMsg.textContent = 'Password must be at least 8 characters long and contain at least one special character.';
-    return;
-  }
+      errorMsg.textContent = '';
+      successMsg.classList.add('hidden'); // Hide success message initially
+      if (!firstName || !lastName || !dob || !age || !contactNumber || !email || !password || !confirmPassword) {
+        errorMsg.textContent = 'Please fill all fields.';
+        return;
+      }
+      if (password !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match.';
+        return;
+      }
+      if (!validatePassword(password)) {
+        errorMsg.textContent = 'Password must be at least 8 characters long and contain at least one special character.';
+        return;
+      }
 
-  console.log("Registering user with email:", email);
-  console.log("First Name:", firstName);
-  console.log("Last Name:", lastName);
+      console.log("Registering user with email:", email);
+      console.log("First Name:", firstName);
+      console.log("Last Name:", lastName);
 
-  // Register the user with Firebase Authentication
-  auth.createUser WithEmailAndPassword(email, password) // Corrected line
-    .then(async (userCredential) => {
-      // Use email as user ID
-      const userId = email; // or use userCredential.user.uid for UID
+      // Register the user with Firebase Authentication
+      createUser WithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+          // Use email as user ID
+          const userId = email; // or use userCredential.user.uid for UID
 
-      // Store additional user information in Firestore
-      await db.collection('users').doc(userId).set({
-        firstName: firstName,
-        lastName: lastName,
-        dob: dob,
-        age: age,
-        contactNumber: contactNumber,
-        role: 'appUser ', // Default role for all new users
-        masjidId: null // Initially set to null, can be updated later for masjid admins
-      });
+          // Store additional user information in Firestore
+          await setDoc(doc(db, 'users', userId), {
+            firstName: firstName,
+            lastName: lastName,
+            dob: dob,
+            age: age,
+            contactNumber: contactNumber,
+            role: 'appUser ', // Default role for all new users
+            masjidId: null // Initially set to null, can be updated later for masjid admins
+          });
 
-      // Show success message after user profile is created
-      successMsg.textContent = 'Registration successful! Please log in.';
-      successMsg.classList.remove('hidden'); // Show success message
-    })
-    .catch(error => {
-      console.error("Error during registration:", error);
-      errorMsg.textContent = error.message;
+          // Show success message after user profile is created
+          successMsg.textContent = 'Registration successful! Please log in.';
+          successMsg.classList.remove('hidden'); // Show success message
+        })
+        .catch(error => {
+          console.error("Error during registration:", error);
+          errorMsg.textContent = error.message;
+        });
     });
-});
-
-
-    // Show success message after user profile is created
-    successMsg.textContent = 'Registration successful! Please log in.';
-    successMsg.classList.remove('hidden'); // Show success message
-  })
-  .catch(error => {
-    console.error("Error during registration:", error);
-    errorMsg.textContent = error.message;
-  });
-
-
-    // Show success message after user profile is created
-    successMsg.textContent = 'Registration successful! Please log in.';
-    successMsg.classList.remove('hidden'); // Show success message
-  })
-  .catch(error => {
-    errorMsg.textContent = error.message;
-  });
-
 
     function validatePassword(password) {
       const regex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least 8 characters, at least 1 special character
