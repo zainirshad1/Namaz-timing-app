@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register - Namaz Times</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center">Register for Namaz Times</h1>
+    <div id="error-msg" class="text-red-600 mb-4"></div>
+    <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded mb-4" />
+    <input id="password" type="password" placeholder="Password" class="w-full p-3 border rounded mb-4" />
+    <input id="confirm-password" type="password" placeholder="Confirm Password" class="w-full p-3 border rounded mb-4" />
+    <button id="register-btn" class="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700">Register</button>
+    <div class="mt-4 text-center text-sm">
+      <a href="login.html" class="text-green-700 hover:underline">Back to Login</a>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
+      authDomain: "namaz-times-app.firebaseapp.com",
+      projectId: "namaz-times-app",
+      storageBucket: "namaz-times-app.firebasestorage.app",
+      messagingSenderId: "974582220585",
+      appId: "1:974582220585:web:092a933942836566f95938",
+      measurementId: "G-3CTLSN6BLS"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const registerBtn = document.getElementById('register-btn');
+    const errorMsg = document.getElementById('error-msg');
+
+    registerBtn.addEventListener('click', () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      errorMsg.textContent = '';
+      if (!email || !password || !confirmPassword) {
+        errorMsg.textContent = 'Please fill all fields.';
+        return;
+      }
+      if (password !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      auth.createUser WithEmailAndPassword(email, password)
+        .then(async (userCredential) => {
+          // Add user role and masjidId (default normalUser )
+          await db.collection('users').doc(userCredential.user.uid).set({
+            role: 'normalUser ',
+            masjidId: null
+          });
+          window.location.href = 'login.html';
+        })
+        .catch(error => {
+          errorMsg.textContent = error.message;
+        });
+    });
+  </script>
+</body>
+</html>
