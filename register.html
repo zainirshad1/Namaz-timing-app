@@ -10,6 +10,7 @@
   <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
     <h1 class="text-2xl font-bold mb-6 text-center">Register for Namaz Times</h1>
     <div id="error-msg" class="text-red-600 mb-4"></div>
+    <div id="success-msg" class="text-green-600 mb-4 hidden"></div> <!-- Success message div -->
     <input id="first-name" type="text" placeholder="First Name" class="w-full p-3 border rounded mb-4" required />
     <input id="last-name" type="text" placeholder="Last Name" class="w-full p-3 border rounded mb-4" required />
     <input id="dob" type="date" placeholder="Date of Birth" class="w-full p-3 border rounded mb-4" required />
@@ -47,6 +48,7 @@
 
     const registerBtn = document.getElementById('register-btn');
     const errorMsg = document.getElementById('error-msg');
+    const successMsg = document.getElementById('success-msg'); // Success message element
     const dobInput = document.getElementById('dob');
     const ageInput = document.getElementById('age');
 
@@ -84,6 +86,7 @@
       const confirmPassword = document.getElementById('confirm-password').value;
 
       errorMsg.textContent = '';
+      successMsg.classList.add('hidden'); // Hide success message initially
       if (!firstName || !lastName || !dob || !age || !contactNumber || !email || !password || !confirmPassword) {
         errorMsg.textContent = 'Please fill all fields.';
         return;
@@ -101,7 +104,7 @@
       auth.createUser WithEmailAndPassword(email, password)
         .then(async (userCredential) => {
           // Use email as user ID
-          const userId = email; // or use contactNumber if you prefer
+          const userId = email; // or use userCredential.user.uid for UID
 
           // Store additional user information in Firestore
           await db.collection('users').doc(userId).set({
@@ -110,10 +113,13 @@
             dob: dob,
             age: age,
             contactNumber: contactNumber,
-            role: 'appUser ', // Default role for all new users
+            role: 'appUser   ', // Default role for all new users
             masjidId: null // Initially set to null, can be updated later for masjid admins
           });
-          window.location.href = 'login.html';
+
+          // Show success message after user profile is created
+          successMsg.textContent = 'Registration successful! Please log in.';
+          successMsg.classList.remove('hidden'); // Show success message
         })
         .catch(error => {
           errorMsg.textContent = error.message;
