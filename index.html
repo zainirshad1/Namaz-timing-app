@@ -94,13 +94,13 @@
     <script>
         // Initialize Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
-            authDomain: "namaz-times-app.firebaseapp.com",
-            projectId: "namaz-times-app",
-            storageBucket: "namaz-times-app.appspot.com",
-            messagingSenderId: "974582220585",
-            appId: "1:974582220585:web:092a933942836566f95938",
-            measurementId: "G-3CTLSN6BLS"
+      apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
+      authDomain: "namaz-times-app.firebaseapp.com",
+      projectId: "namaz-times-app",
+      storageBucket: "namaz-times-app.firebasestorage.app",
+      messagingSenderId: "974582220585",
+      appId: "1:974582220585:web:092a933942836566f95938",
+      measurementId: "G-3CTLSN6BLS"        
         };
         firebase.initializeApp(firebaseConfig);
         
@@ -344,4 +344,29 @@
             if (nextPrayer) {
                 const durationLeft = Math.floor((nextPrayerTime - now) / 1000 / 60); // Duration in minutes
                 document.getElementById('next-prayer-name').textContent = nextPrayer;
-                document.getElementById('next-prayer-time').
+                document.getElementById('next-prayer-time').textContent = nextPrayerTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                document.getElementById('duration-left').textContent = `${durationLeft} min`;
+            } else {
+                document.getElementById('next-prayer-name').textContent = 'None';
+                document.getElementById('next-prayer-time').textContent = '--:-- --';
+                document.getElementById('duration-left').textContent = '--:--';
+            }
+        }
+
+        // Initialize the app
+        async function init() {
+            await populateMasjidDropdown();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+        }
+
+        // Event listener for masjid selection
+        document.getElementById('masjid-select').addEventListener('change', (event) => {
+            displayPrayerTimes(event.target.value);
+        });
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
