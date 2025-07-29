@@ -10,9 +10,14 @@
   <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
     <h1 class="text-2xl font-bold mb-6 text-center">Register for Namaz Times</h1>
     <div id="error-msg" class="text-red-600 mb-4"></div>
-    <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded mb-4" />
-    <input id="password" type="password" placeholder="Password" class="w-full p-3 border rounded mb-4" />
-    <input id="confirm-password" type="password" placeholder="Confirm Password" class="w-full p-3 border rounded mb-4" />
+    <input id="first-name" type="text" placeholder="First Name" class="w-full p-3 border rounded mb-4" required />
+    <input id="last-name" type="text" placeholder="Last Name" class="w-full p-3 border rounded mb-4" required />
+    <input id="dob" type="date" placeholder="Date of Birth" class="w-full p-3 border rounded mb-4" required />
+    <input id="age" type="number" placeholder="Age" class="w-full p-3 border rounded mb-4" readonly />
+    <input id="contact-number" type="tel" placeholder="Contact Number" class="w-full p-3 border rounded mb-4" required />
+    <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded mb-4" required />
+    <input id="password" type="password" placeholder="Password (min 8 characters, at least 1 special character)" class="w-full p-3 border rounded mb-4" required />
+    <input id="confirm-password" type="password" placeholder="Confirm Password" class="w-full p-3 border rounded mb-4" required />
     <button id="register-btn" class="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700">Register</button>
     <div class="mt-4 text-center text-sm">
       <a href="login.html" class="text-green-700 hover:underline">Back to Login</a>
@@ -41,14 +46,44 @@
 
     const registerBtn = document.getElementById('register-btn');
     const errorMsg = document.getElementById('error-msg');
+    const dobInput = document.getElementById('dob');
+    const ageInput = document.getElementById('age');
+
+    // Function to calculate age from date of birth
+    function calculateAge(dob) {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    // Event listener for date of birth input
+    dobInput.addEventListener('change', () => {
+      const dob = dobInput.value;
+      if (dob) {
+        const age = calculateAge(dob);
+        ageInput.value = age; // Set the calculated age
+      } else {
+        ageInput.value = ''; // Clear age if no date is selected
+      }
+    });
 
     registerBtn.addEventListener('click', () => {
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const dob = dobInput.value;
+      const age = ageInput.value;
+      const contactNumber = document.getElementById('contact-number').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirm-password').value;
 
       errorMsg.textContent = '';
-      if (!email || !password || !confirmPassword) {
+      if (!firstName || !lastName || !dob || !age || !contactNumber || !email || !password || !confirmPassword) {
         errorMsg.textContent = 'Please fill all fields.';
         return;
       }
@@ -56,11 +91,20 @@
         errorMsg.textContent = 'Passwords do not match.';
         return;
       }
+      if (!validatePassword(password)) {
+        errorMsg.textContent = 'Password must be at least 8 characters long and contain at least one special character.';
+        return;
+      }
 
       auth.createUser WithEmailAndPassword(email, password)
         .then(async (userCredential) => {
-          // Add user role and masjidId (default normalUser )
+          // Add user details to Firestore
           await db.collection('users').doc(userCredential.user.uid).set({
+            firstName: firstName,
+            lastName: lastName,
+            dob: dob,
+            age: age,
+            contactNumber: contactNumber,
             role: 'normalUser ',
             masjidId: null
           });
@@ -70,6 +114,11 @@
           errorMsg.textContent = error.message;
         });
     });
+
+    function validatePassword(password) {
+      const regex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least 8 characters, at least 1 special character
+      return regex.test(password);
+    }
   </script>
 </body>
 </html>
