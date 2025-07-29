@@ -18,6 +18,7 @@
     <input id="email" type="email" placeholder="Email" class="w-full p-3 border rounded mb-4" required />
     <input id="password" type="password" placeholder="Password (min 8 characters, at least 1 special character)" class="w-full p-3 border rounded mb-4" required />
     <input id="confirm-password" type="password" placeholder="Confirm Password" class="w-full p-3 border rounded mb-4" required />
+    
     <button id="register-btn" class="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700">Register</button>
     <div class="mt-4 text-center text-sm">
       <a href="login.html" class="text-green-700 hover:underline">Back to Login</a>
@@ -96,17 +97,21 @@
         return;
       }
 
+      // Register the user with Firebase Authentication
       auth.createUser WithEmailAndPassword(email, password)
         .then(async (userCredential) => {
-          // Add user details to Firestore
-          await db.collection('users').doc(userCredential.user.uid).set({
+          // Use email as user ID
+          const userId = email; // or use contactNumber if you prefer
+
+          // Store additional user information in Firestore
+          await db.collection('users').doc(userId).set({
             firstName: firstName,
             lastName: lastName,
             dob: dob,
             age: age,
             contactNumber: contactNumber,
-            role: 'normalUser ',
-            masjidId: null
+            role: 'appUser ', // Default role for all new users
+            masjidId: null // Initially set to null, can be updated later for masjid admins
           });
           window.location.href = 'login.html';
         })
