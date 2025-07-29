@@ -1,176 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Namaz Times - Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #f5f7fa; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Namaz Times</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+        }
+        .current-prayer {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(26, 111, 76, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(26, 111, 76, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(26, 111, 76, 0); }
+        }
+        .highlight-farz {
+            color: #2f855a; /* Darker green for Farz */
+            font-weight: bold;
+        }
+        .highlight-sunnah {
+            color: #68d391; /* Lighter green for Sunnah Muakkadah */
+            font-weight: bold;
+        }
+        .prayer-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 150px; /* Fixed height for uniformity */
+            padding: 1.5rem; /* Padding for the card */
+            border: 1px solid #e2e8f0; /* Light border for better visibility */
+            border-radius: 0.5rem; /* Rounded corners */
+            background-color: white; /* White background */
+        }
+        .rakat-list {
+            margin-left: 20px;
+            flex-shrink: 0; /* Prevent shrinking */
+            text-align: center; /* Center the text */
+        }
+        .rakat-container {
+            flex-grow: 1; /* Allow this div to grow and take available space */
+            display: flex;
+            justify-content: center; /* Center the rakat list */
+            align-items: center; /* Center vertically */
+        }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
-  <header class="bg-green-700 text-white py-4 px-6 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Namaz Times</h1>
-    <div id="auth-section" class="flex items-center space-x-4"></div>
-  </header>
-
-  <main class="container mx-auto px-4 py-8 flex-1">
-    <div>
-      <select id="masjid-select" class="bg-green-100 text-green-800 font-medium py-2 px-4 rounded-lg mb-4">
-        <option value="">Choose nearby masjid</option>
-      </select>
-      <button id="add-masjid-btn" class="hidden bg-green-600 text-white py-2 px-4 rounded-lg mb-4">Add/Edit Masjid</button>
-      <button id="add-prayer-btn" class="hidden bg-yellow-600 text-white py-2 px-4 rounded-lg mb-4">Add/Edit Prayer Times</button>
-    </div>
-    <div id="prayer-times" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-  </main>
-
-  <footer class="bg-green-800 text-white py-4 text-center text-sm">
-    <p>© 2023 Namaz Times App</p>
-    <p class="text-green-200 mt-1">Prayer times calculated for your selected masjid</p>
-  </footer>
-
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-  <script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
-      authDomain: "namaz-times-app.firebaseapp.com",
-      projectId: "namaz-times-app",
-      storageBucket: "namaz-times-app.firebasestorage.app",
-      messagingSenderId: "974582220585",
-      appId: "1:974582220585:web:092a933942836566f95938",
-      measurementId: "G-3CTLSN6BLS"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    const authSection = document.getElementById('auth-section');
-    const masjidSelect = document.getElementById('masjid-select');
-    const addMasjidBtn = document.getElementById('add-masjid-btn');
-    const addPrayerBtn = document.getElementById('add-prayer-btn');
-    const prayerTimesDiv = document.getElementById('prayer-times');
-
-    // Show login or user info
-    auth.onAuthStateChanged(async user => {
-      authSection.innerHTML = '';
-      if (user) {
-        // Show user email and logout button
-        const userEmail = document.createElement('span');
-        userEmail.textContent = user.email;
-        const logoutBtn = document.createElement('button');
-        logoutBtn.textContent = 'Logout';
-        logoutBtn.className = 'bg-red-600 px-3 py-1 rounded hover:bg-red-700';
-        logoutBtn.onclick = () => auth.signOut();
-        authSection.appendChild(userEmail);
-        authSection.appendChild(logoutBtn);
-
-        // Check user role and show buttons accordingly
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          const role = userDoc.data().role;
-          if (role === 'superadmin') {
-            addMasjidBtn.classList.remove('hidden');
-            addPrayerBtn.classList.remove('hidden');
-            loadMasjids(); // Load all masjids
-          } else if (role === 'masjidAdmin') {
-            addMasjidBtn.classList.remove('hidden');
-            addPrayerBtn.classList.remove('hidden');
-            loadMasjids([userDoc.data().masjidId]); // Load only assigned masjid
-          } else {
-            addMasjidBtn.classList.add('hidden');
-            addPrayerBtn.classList.add('hidden');
-            loadMasjids(); // Normal user sees all masjids
-          }
-        } else {
-          addMasjidBtn.classList.add('hidden');
-          addPrayerBtn.classList.add('hidden');
-          loadMasjids(); // No role info, treat as normal user
-        }
-      } else {
-        // Show login button
-        const loginBtn = document.createElement('button');
-        loginBtn.textContent = 'Login';
-        loginBtn.className = 'bg-green-600 px-3 py-1 rounded hover:bg-green-700';
-        loginBtn.onclick = () => window.location.href = 'login.html';
-        authSection.appendChild(loginBtn);
-
-        addMasjidBtn.classList.add('hidden');
-        addPrayerBtn.classList.add('hidden');
-        loadMasjids(); // Load all masjids for guests
-      }
-    });
-
-    // Load masjids, optionally filtered by IDs
-    async function loadMasjids(filterIds) {
-      let query = db.collection('masjids');
-      if (filterIds && filterIds.length > 0) {
-        query = query.where(firebase.firestore.FieldPath.documentId(), 'in', filterIds);
-      }
-      const snapshot = await query.get();
-      masjidSelect.innerHTML = '<option value="">Choose nearby masjid</option>';
-      snapshot.forEach(doc => {
-        const option = document.createElement('option');
-        option.value = doc.id;
-        option.textContent = doc.data().name;
-        masjidSelect.appendChild(option);
-      });
-    }
-
-    // Load prayer times when masjid selected
-    masjidSelect.addEventListener('change', async () => {
-      const masjidId = masjidSelect.value;
-      if (!masjidId) {
-        prayerTimesDiv.innerHTML = '';
-        return;
-      }
-      const doc = await db.collection('masjids').doc(masjidId).get();
-      if (!doc.exists) {
-        prayerTimesDiv.innerHTML = '<p>No prayer times found.</p>';
-        return;
-      }
-      const data = doc.data();
-      // Render prayer times (simplified)
-      prayerTimesDiv.innerHTML = `
-        <div class="prayer-card">
-          <div>
-            <h3>Fajr</h3>
-            <p>${data.Fajr || 'N/A'}</p>
-          </div>
-          <div>
-            <h3>Dhuhr</h3>
-            <p>${data.Dhuhr || 'N/A'}</p>
-          </div>
-          <div>
-            <h3>Asr</h3>
-            <p>${data.Asr || 'N/A'}</p>
-          </div>
-          <div>
-            <h3>Maghrib</h3>
-            <p>${data.Maghrib || 'N/A'}</p>
-          </div>
-          <div>
-            <h3>Isha</h3>
-            <p>${data.Isha || 'N/A'}</p>
-          </div>
-          <div>
-            <h3>Jumuah</h3>
-            <p>${data.Jumuah || 'N/A'}</p>
-          </div>
+    <div class="bg-green-700 text-white py-4 px-6 flex justify-between items-center rounded-b-3xl shadow-lg">
+        <div>
+            <h1 class="text-2xl font-bold">Namaz Times</h1>
+            <p id="current-date" class="text-green-100">Loading date...</p>
+            <p id="hijri-date" class="text-green-100">Loading Hijri date...</p>
         </div>
-      `;
-    });
+        <div>
+            <a href="login.html" class="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg">Login</a>
+        </div>
+    </div>
 
-    // TODO: Add event listeners and modals for add/edit masjid and prayer times,
-    // visible only if user is masjidAdmin or superadmin.
+    <div class="container mx-auto px-4 py-8 flex-1">
+        <div class="bg-white rounded-2xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800">Select Masjid</h2>
+            <select id="masjid-select" class="bg-green-100 text-green-800 font-medium py-2 px-4 rounded-lg">
+                <option value="">Choose nearby masjid</option>
+            </select>
+            <button id="location-btn" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded-lg mt-2" aria-label="Get My Location">
+                Get My Location
+            </button>
+            <div class="text-center">
+                <p class="text-4xl font-bold text-green-700 mb-2" id="current-time">--:-- --</p>
+                <p class="text-gray-500">Next Prayer: <span id="next-prayer-name" class="font-medium text-green-600">None</span> at <span id="next-prayer-time" class="font-medium text-green-600">--:-- --</span></p>
+                <p class="text-gray-500">Duration Left: <span id="duration-left" class="font-medium text-green-600">--:--</span></p>
+            </div>
+        </div>
 
-  </script>
-</body>
-</html>
+        <div id="prayer-times" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+    <footer class="bg-green-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>© 2023 Namaz Times App</p>
+            <p class="text-green-200 mt-1">Prayer times calculated for your selected masjid</p>
+        </div>
+    </footer>
+
+    <!-- Add Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
+            authDomain: "namaz-times-app.firebaseapp.com",
+            projectId: "namaz-times-app",
+            storageBucket: "namaz-times-app.appspot.com",
+            messagingSenderId: "974582220585",
+            appId: "1:974582220585:web:092a933942836566f95938",
+            measurementId: "G-3CTLSN6BLS"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        const SHEET_ID = '1VGGE-i2lBJ1E_HkUFCrfdlBLKQJZOKyeaN6ZmdbniVE'; // Your Google Sheet ID
+        const API_KEY = 'AIzaSyACQUblz-jRQ5QJiIoVjRLbX8rcDMkV17o'; // Your Google API Key
+        const RANGE = 'Sheet1!B1:AZ'; // Adjust the range according to your sheet
+
+        // Default prayer times for Hanafi school in Bangalore
+        const defaultPrayerTimes = {
+            Fajr: { time: "05:30", end: "06:30" },
+            Dhuhr: { time: "12:30", end: "14:30" },
+            Asr: { time: "15:45", end: "17:45" },
+            Maghrib: { time: "18:30", end: "19:30" },
+            Isha: { time: "19:45", end: "21:45" },
+            Jumuah: { time: "13:15", end: "14:15" }
+        };
+
+        // Function to format time to AM/PM
+        function formatTimeToAMPM(timeStr) {
+            const [hours, minutes] = timeStr.split(':');
+            const date = new Date();
+            date.setHours(hours);
+            date.setMinutes(minutes);
+            const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+            return date.toLocaleTimeString([], options);
+        }
+
+        // Function to fetch masjid data from Google Sheets
+        async function fetchMasjidData() {
+            try {
+                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data.values;
+            } catch (error) {
+                console.error('Error fetching masjid data:', error);
+                document.getElementById('masjid-select').innerHTML = '<option value="">Failed to load masjid data</option>';
+            }
+        }
+
+        // Function to populate masjid dropdown
+        async function populateMasjidDropdown() {
+            const masjidData = await fetchMasjidData();
+            const masjidSelect = document.getElementById('masjid-select');
+
+            if (masjidData && masjidData.length > 1) {
+                masjidData.forEach((row, index) => {
+                    if (index === 0) return; // Skip header row
+                    const option = document.createElement('option');
+                    option.value = row[0]; // Assuming the first column in the range is the masjid name
+                    option.textContent = row[0];
+                    masjidSelect.appendChild(option);
+                });
+            } else {
+                masjidSelect.innerHTML = '<option value="">No masjids found</option>';
+            }
+        }
+
+        // Function to format rakat details
+        function formatRakatDetails(rakats) {
+            const rakatDetails = [];
+            rakats.forEach(rakat => {
+                const type = rakat.type.charAt(0).toUpperCase() + rakat.type.slice(1); // Capitalize first letter
+                const count = rakat.count;
+                const highlightClass = (type === 'Farz') ? 'highlight-farz' : (type === 'Sunnah Muakkadah') ? 'highlight-sunnah' : '';
+                rakatDetails.push(`<li class="${highlightClass}">${type}: ${count}</li>`);
+            });
+            return `<ul class="list-disc list-inside rakat-list">${rakatDetails.join('')}</ul>`;
+        }
+
+        // Function to get rakats for each prayer
+        function getFajrRakats() {
+            return [
+                { type: 'sunnahMuakkadah', count: 2 },
+                { type: 'farz', count: 2 }
+            ];
+        }
+
+        function getDhuhrRakats() {
+            return [
+                { type: 'sunnahMuakkadah', count: 4 },
+                { type: 'farz', count: 4 },
+                { type: 'sunnahMuakkadah', count: 2 },
+                { type: 'nafil', count: 2 }
+            ];
+        }
+
+        function getAsrRakats() {
+            return [
+                { type: 'sunnah', count: 4 },
+                { type: 'farz', count: 4 }
+            ];
+        }
+
+        function getMaghribRakats() {
+            return [
+                { type: 'farz', count: 3 },
+                { type: 'sunnahMuakkadah', count: 2 },
+                { type: 'nafil', count: 2 }
+            ];
+        }
+
+        function getIshaRakats() {
+            return [
+                { type: 'sunnah', count: 4 },
+                { type: 'farz', count: 4 },
+                { type: 'sunnahMuakkadah', count: 2 },
+                { type: 'nafil', count: 2 },
+                { type: 'witr', count: 3 },
+                { type: 'nafil', count: 2 }
+            ];
+        }
+
+        function getJumuahRakats() {
+            return [
+                { type: 'sunnahMuakkadah', count: 4 },
+                { type: 'farz', count: 2 },
+                { type: 'sunnahMuakkadah', count: 4 },
+                { type: 'sunnahMuakkadah', count: 2 },
+                { type: 'nafil', count: 2 }
+            ];
+        }
+
+        // Function to display prayer times and Azan times for the selected masjid
+        async function displayPrayerTimes(masjid) {
+            const prayerTimesDiv = document.getElementById('prayer-times');
+            prayerTimesDiv.innerHTML = ''; // Clear previous times
+
+            // Fetch prayer times based on selected masjid
+            const masjidData = await fetchMasjidData();
+            const selectedRow = masjidData.find(row => row[0] === masjid);
+
+            if (selectedRow) {
+                const prayerDetails = [
+                    { name: 'Fajr', azanTime: selectedRow[1], prayerTime: selectedRow[2], endTime: defaultPrayerTimes.Fajr.end, rakats: getFajrRakats() },
+                    { name: 'Dhuhr', azanTime: selectedRow[3], prayerTime: selectedRow[4], endTime: defaultPrayerTimes.Dhuhr.end, rakats: getDhuhrRakats() },
+                    { name: 'Asr', azanTime: selectedRow[5], prayerTime: selectedRow[6], endTime: defaultPrayerTimes.Asr.end, rakats: getAsrRakats() },
+                    { name: 'Maghrib', azanTime: selectedRow[7], prayerTime: selectedRow[8], endTime: defaultPrayerTimes.Maghrib.end, rakats: getMaghribRakats() },
+                    { name: 'Isha', azanTime: selectedRow[9], prayerTime: selectedRow[10], endTime: defaultPrayerTimes.Isha.end, rakats: getIshaRakats() },
+                    { name: 'Jumuah', azanTime: selectedRow[11], prayerTime: selectedRow[12], endTime: defaultPrayerTimes.Jumuah.end, rakats: getJumuahRakats() }
+                ];
+
+                // Create a separate card for each prayer
+                prayerDetails.forEach(prayer => {
+                    const prayerCard = document.createElement('div');
+                    prayerCard.className = 'prayer-card';
+                    prayerCard.innerHTML = `
+                        <div>
+                            <h3 class="font-bold text-gray-500">${prayer.name}</h3>
+                            <p class="text-gray-500">Azan: ${prayer.azanTime}</p>
+                            <p class="text-2xl font-semibold text-gray-800">Prayer: ${prayer.prayerTime}</p>
+                            <p class="text-gray-500">End Time: ${formatTimeToAMPM(prayer.endTime)}</p>
+                        </div>
+                        <div class="rakat-container">
+                            <div class="rakat-list">${formatRakatDetails(prayer.rakats)}</div>
+                        </div>
+                    `;
+                    prayerTimesDiv.appendChild(prayerCard);
+                });
+                updateNextPrayer(prayerDetails.map(p => p.prayerTime));
+            } else {
+                // Display default prayer times if no masjid is selected
+                displayDefaultPrayerTimes();
+            }
+        }
+
+        // Function to display default prayer times for Hanafi school
+        function displayDefaultPrayerTimes() {
+            const prayerTimesDiv = document.getElementById('prayer-times');
+            prayerTimesDiv.innerHTML = ''; // Clear previous times
+
+            const prayerDetails = [
+                { name: 'Fajr', prayerTime: defaultPrayerTimes.Fajr.time, endTime: defaultPrayerTimes.Fajr.end, rakats: getFajrRakats() },
+                { name: 'Dhuhr', prayerTime: defaultPrayerTimes.Dhuhr.time, endTime: defaultPrayerTimes.Dhuhr.end, rakats: getDhuhrRakats() },
+                { name: 'Asr', prayerTime: defaultPrayerTimes.Asr.time, endTime: defaultPrayerTimes.Asr.end, rakats: getAsrRakats() },
+                { name: 'Maghrib', prayerTime: defaultPrayerTimes.Maghrib.time, endTime: defaultPrayerTimes.Maghrib.end, rakats: getMaghribRakats() },
+                { name: 'Isha', prayerTime: defaultPrayerTimes.Isha.time, endTime: defaultPrayerTimes.Isha.end, rakats: getIshaRakats() },
+                { name: 'Jumuah', prayerTime: defaultPrayerTimes.Jumuah.time, endTime: defaultPrayerTimes.Jumuah.end, rakats: getJumuahRakats() }
+            ];
+
+            // Create a separate card for each prayer
+            prayerDetails.forEach(prayer => {
+                const prayerCard = document.createElement('div');
+                prayerCard.className = 'prayer-card';
+                prayerCard.innerHTML = `
+                    <div>
+                        <h3 class="font-bold text-gray-500">${prayer.name}</h3>
+                        <p class="text-2xl font-semibold text-gray-800">Prayer: ${prayer.prayerTime}</p>
+                        <p class="text-gray-500">End Time: ${formatTimeToAMPM(prayer.endTime)}</p>
+                    </div>
+                    <div class="rakat-container">
+                        <div class="rakat-list">${formatRakatDetails(prayer.rakats)}</div>
+                    </div>
+                `;
+                prayerTimesDiv.appendChild(prayerCard);
+            });
+            updateNextPrayer(Object.values(defaultPrayerTimes).map(p => p.time));
+        }
+
+        // Function to update current time and date
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', options);
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+            updateHijriDate(now);
+        }
+
+        // Function to update Hijri date
+        function updateHijriDate(date) {
+            try {
+                const hijriDate = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }).format(date);
+                document.getElementById('hijri-date').textContent = `Hijri Date: ${hijriDate}`;
+            } catch (e) {
+                console.error('Could not format Hijri date:', e);
+                document.getElementById('hijri-date').textContent = '';
+            }
+        }
+
+        // Function to update next prayer time and duration left
+        function updateNextPrayer(prayerTimes) {
+            const now = new Date();
+            let nextPrayer = null;
+            let nextPrayerTime = null;
+
+            for (const prayerTime of prayerTimes) {
+                const prayerDateTime = new Date(`1970-01-01T${prayerTime}:00`);
+                if (prayerDateTime > now) {
+                    nextPrayer = prayerTime;
+                    nextPrayerTime = prayerDateTime;
+                    break;
+                }
+            }
+
+            if (nextPrayer) {
+                const durationLeft = Math.floor((nextPrayerTime - now) / 1000 / 60); // Duration in minutes
+                document.getElementById('next-prayer-name').textContent = nextPrayer;
+                document.getElementById('next-prayer-time').
