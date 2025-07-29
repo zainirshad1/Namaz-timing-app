@@ -75,47 +75,72 @@
       }
     });
 
-    registerBtn.addEventListener('click', () => {
-      const firstName = document.getElementById('first-name').value.trim();
-      const lastName = document.getElementById('last-name').value.trim();
-      const dob = dobInput.value;
-      const age = ageInput.value;
-      const contactNumber = document.getElementById('contact-number').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
+registerBtn.addEventListener('click', () => {
+  const firstName = document.getElementById('first-name').value.trim();
+  const lastName = document.getElementById('last-name').value.trim();
+  const dob = dobInput.value;
+  const age = ageInput.value;
+  const contactNumber = document.getElementById('contact-number').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirm-password').value;
 
-      errorMsg.textContent = '';
-      successMsg.classList.add('hidden'); // Hide success message initially
-      if (!firstName || !lastName || !dob || !age || !contactNumber || !email || !password || !confirmPassword) {
-        errorMsg.textContent = 'Please fill all fields.';
-        return;
-      }
-      if (password !== confirmPassword) {
-        errorMsg.textContent = 'Passwords do not match.';
-        return;
-      }
-      if (!validatePassword(password)) {
-        errorMsg.textContent = 'Password must be at least 8 characters long and contain at least one special character.';
-        return;
-      }
+  errorMsg.textContent = '';
+  successMsg.classList.add('hidden'); // Hide success message initially
+  if (!firstName || !lastName || !dob || !age || !contactNumber || !email || !password || !confirmPassword) {
+    errorMsg.textContent = 'Please fill all fields.';
+    return;
+  }
+  if (password !== confirmPassword) {
+    errorMsg.textContent = 'Passwords do not match.';
+    return;
+  }
+  if (!validatePassword(password)) {
+    errorMsg.textContent = 'Password must be at least 8 characters long and contain at least one special character.';
+    return;
+  }
 
-// Register the user with Firebase Authentication
-auth.createUser WithEmailAndPassword(email, password)
-  .then(async (userCredential) => {
-    // Use email as user ID
-    const userId = email; // or use userCredential.user.uid for UID
+  console.log("Registering user with email:", email);
+  console.log("First Name:", firstName);
+  console.log("Last Name:", lastName);
 
-    // Store additional user information in Firestore
-    await db.collection('users').doc(userId).set({
-      firstName: firstName,
-      lastName: lastName,
-      dob: dob,
-      age: age,
-      contactNumber: contactNumber,
-      role: 'appUser ', // Default role for all new users
-      masjidId: null // Initially set to null, can be updated later for masjid admins
+  // Register the user with Firebase Authentication
+  auth.createUser WithEmailAndPassword(email, password) // Corrected line
+    .then(async (userCredential) => {
+      // Use email as user ID
+      const userId = email; // or use userCredential.user.uid for UID
+
+      // Store additional user information in Firestore
+      await db.collection('users').doc(userId).set({
+        firstName: firstName,
+        lastName: lastName,
+        dob: dob,
+        age: age,
+        contactNumber: contactNumber,
+        role: 'appUser ', // Default role for all new users
+        masjidId: null // Initially set to null, can be updated later for masjid admins
+      });
+
+      // Show success message after user profile is created
+      successMsg.textContent = 'Registration successful! Please log in.';
+      successMsg.classList.remove('hidden'); // Show success message
+    })
+    .catch(error => {
+      console.error("Error during registration:", error);
+      errorMsg.textContent = error.message;
     });
+});
+
+
+    // Show success message after user profile is created
+    successMsg.textContent = 'Registration successful! Please log in.';
+    successMsg.classList.remove('hidden'); // Show success message
+  })
+  .catch(error => {
+    console.error("Error during registration:", error);
+    errorMsg.textContent = error.message;
+  });
+
 
     // Show success message after user profile is created
     successMsg.textContent = 'Registration successful! Please log in.';
