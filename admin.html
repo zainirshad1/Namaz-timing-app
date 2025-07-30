@@ -97,6 +97,7 @@
                 
                 <div class="flex space-x-2 mt-4">
                     <button id="add-new-masjid-btn" class="admin-button bg-blue-600 hover:bg-blue-700">Add New Masjid</button>
+                    <button id="clear-filters-btn" class="admin-button bg-gray-500 hover:bg-gray-600">Clear Filters</button>
                 </div>
             </div>
 
@@ -375,6 +376,7 @@
         const selectMasjidSuper = document.getElementById('select-masjid-super'); // Now the input for datalist
         const masjidListOptions = document.getElementById('masjid-list-options'); // The datalist element
         const addNewMasjidBtn = document.getElementById('add-new-masjid-btn'); // New button for adding
+        const clearFiltersBtn = document.getElementById('clear-filters-btn'); // New clear filters button
         const saveAllChangesBtn = document.getElementById('save-all-changes-btn'); // New consolidated save button
 
         // Consolidated Masjid Details Form Elements
@@ -694,6 +696,19 @@
         filterState.addEventListener('change', filterCities);
         filterCity.addEventListener('change', filterAreas);
         filterArea.addEventListener('change', filterMasjids);
+
+        // Clear Filters button click
+        clearFiltersBtn.addEventListener('click', () => {
+            filterState.value = '';
+            filterCity.value = '';
+            filterCity.disabled = true;
+            filterArea.value = '';
+            filterArea.disabled = true;
+            selectMasjidSuper.value = '';
+            populateMasjidDatalist(allMasjidsData); // Show all masjids again
+            clearAndHideMasjidForms(); // Clear and hide the details/prayer forms
+            showMessage(successMessage, 'Filters cleared.');
+        });
 
 
         // Handle selection from datalist (Super Admin) - Auto-load
