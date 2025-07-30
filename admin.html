@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Namaz Times</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+        }
+        /* Custom styling for form elements */
+        .form-input {
+            @apply w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-green-500 focus:border-transparent;
+        }
+        .form-label {
+            @apply block text-gray-700 text-sm font-bold mb-2;
+        }
+        .admin-section {
+            @apply bg-white p-6 rounded-lg shadow-md mb-8;
+        }
+        .admin-button {
+            @apply bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition duration-200 ease-in-out;
+        }
+        .danger-button {
+            @apply bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div class="bg-green-700 text-white py-4 px-6 flex justify-between items-center rounded-b-3xl shadow-lg">
+        <h1 class="text-2xl font-bold">Admin Panel</h1>
+        <div class="flex items-center space-x-4">
+            <span id="user-display" class="text-green-100">Loading user...</span>
+            <button id="logout-btn" class="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg">Logout</button>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 flex-1">
+        <div id="auth-status-message" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 hidden" role="alert">
+            <p class="font-bold">Authentication Required</p>
+            <p>Please <a href="login.html" class="text-yellow-800 underline hover:text-yellow-900">log in</a> to access the admin panel.</p>
+        </div>
+        <div id="permission-denied-message" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 hidden" role="alert">
+            <p class="font-bold">Permission Denied</p>
+            <p>You do not have the necessary permissions to access this panel or perform this action.</p>
+        </div>
+        <div id="loading-message" class="text-center text-gray-500 hidden">Loading admin panel...</div>
+        <div id="success-message" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 hidden" role="alert"></div>
+        <div id="error-message" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 hidden" role="alert"></div>
+
+        <!-- Super Admin Panel -->
+        <div id="super-admin-panel" class="hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Super Admin Dashboard</h2>
+
+            <!-- Edit Existing Masjid -->
+            <div class="admin-section">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Existing Masjid</h3>
+                <label for="select-masjid-super" class="form-label">Select Masjid:</label>
+                <select id="select-masjid-super" class="form-input mb-4">
+                    <option value="">-- Select a Masjid --</option>
+                </select>
+                <button id="load-masjid-data-super" class="admin-button">Load Masjid Data</button>
+            </div>
+
+            <!-- Add New Masjid -->
+            <div class="admin-section">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Add New Masjid</h3>
+                <form id="add-masjid-form">
+                    <label for="new-masjid-id" class="form-label">Masjid ID (Unique, e.g., masjid-al-noor):</label>
+                    <input type="text" id="new-masjid-id" class="form-input" required>
+
+                    <label for="new-masjid-name" class="form-label">Masjid Name:</label>
+                    <input type="text" id="new-masjid-name" class="form-input" required>
+                    
+                    <label for="new-masjid-contact" class="form-label">Contact Number:</label>
+                    <input type="tel" id="new-masjid-contact" class="form-input">
+                    
+                    <label for="new-masjid-email" class="form-label">Email:</label>
+                    <input type="email" id="new-masjid-email" class="form-input">
+                    
+                    <label for="new-masjid-address" class="form-label">Address:</label>
+                    <input type="text" id="new-masjid-address" class="form-input">
+                    
+                    <label for="new-masjid-area" class="form-label">Area:</label>
+                    <input type="text" id="new-masjid-area" class="form-input">
+                    
+                    <label for="new-masjid-zipcode" class="form-label">Zipcode:</label>
+                    <input type="text" id="new-masjid-zipcode" class="form-input">
+                    
+                    <label for="new-masjid-city" class="form-label">City:</label>
+                    <input type="text" id="new-masjid-city" class="form-input">
+                    
+                    <label for="new-masjid-country" class="form-label">Country:</label>
+                    <input type="text" id="new-masjid-country" class="form-input">
+                    
+                    <label for="new-masjid-latitude" class="form-label">Latitude:</label>
+                    <input type="number" step="any" id="new-masjid-latitude" class="form-input">
+                    
+                    <label for="new-masjid-longitude" class="form-label">Longitude:</label>
+                    <input type="number" step="any" id="new-masjid-longitude" class="form-input">
+
+                    <button type="submit" class="admin-button">Add Masjid</button>
+                </form>
+            </div>
+            
+            <!-- Edit City Defaults -->
+            <div class="admin-section">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit City Default End Times (Bengaluru)</h3>
+                <form id="edit-city-defaults-form">
+                    <label for="city-fajr-end" class="form-label">Fajr End:</label>
+                    <input type="time" id="city-fajr-end" class="form-input">
+                    <label for="city-dhuhr-end" class="form-label">Dhuhr End:</label>
+                    <input type="time" id="city-dhuhr-end" class="form-input">
+                    <label for="city-asr-end" class="form-label">Asr End:</label>
+                    <input type="time" id="city-asr-end" class="form-input">
+                    <label for="city-maghrib-end" class="form-label">Maghrib End:</label>
+                    <input type="time" id="city-maghrib-end" class="form-input">
+                    <label for="city-isha-end" class="form-label">Isha End:</label>
+                    <input type="time" id="city-isha-end" class="form-input">
+                    <label for="city-jumuah-end" class="form-label">Jumuah End:</label>
+                    <input type="time" id="city-jumuah-end" class="form-input">
+                    <button type="submit" class="admin-button">Save City Defaults</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Masjid Admin Panel -->
+        <div id="masjid-admin-panel" class="hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Masjid Admin Dashboard for <span id="managed-masjid-name" class="text-green-700"></span></h2>
+            <!-- Edit Masjid Details Form -->
+            <div class="admin-section">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Masjid Details</h3>
+                <form id="edit-masjid-details-form">
+                    <label for="edit-masjid-name" class="form-label">Masjid Name:</label>
+                    <input type="text" id="edit-masjid-name" class="form-input" required>
+                    
+                    <label for="edit-masjid-contact" class="form-label">Contact Number:</label>
+                    <input type="tel" id="edit-masjid-contact" class="form-input">
+                    
+                    <label for="edit-masjid-email" class="form-label">Email:</label>
+                    <input type="email" id="edit-masjid-email" class="form-input">
+                    
+                    <label for="edit-masjid-address" class="form-label">Address:</label>
+                    <input type="text" id="edit-masjid-address" class="form-input">
+                    
+                    <label for="edit-masjid-area" class="form-label">Area:</label>
+                    <input type="text" id="edit-masjid-area" class="form-input">
+                    
+                    <label for="edit-masjid-zipcode" class="form-label">Zipcode:</label>
+                    <input type="text" id="edit-masjid-zipcode" class="form-input">
+                    
+                    <label for="edit-masjid-city" class="form-label">City:</label>
+                    <input type="text" id="edit-masjid-city" class="form-input">
+                    
+                    <label for="edit-masjid-country" class="form-label">Country:</label>
+                    <input type="text" id="edit-masjid-country" class="form-input">
+                    
+                    <label for="edit-masjid-latitude" class="form-label">Latitude:</label>
+                    <input type="number" step="any" id="edit-masjid-latitude" class="form-input">
+                    
+                    <label for="edit-masjid-longitude" class="form-label">Longitude:</label>
+                    <input type="number" step="any" id="edit-masjid-longitude" class="form-input">
+
+                    <button type="submit" class="admin-button">Save Masjid Details</button>
+                </form>
+            </div>
+
+            <!-- Edit Prayer Times Form -->
+            <div class="admin-section">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Prayer Times</h3>
+                <form id="edit-prayer-times-form">
+                    <!-- Fajr -->
+                    <label for="fajr-azan" class="form-label">Fajr Azan:</label>
+                    <input type="time" id="fajr-azan" class="form-input">
+                    <label for="fajr-prayer" class="form-label">Fajr Prayer:</label>
+                    <input type="time" id="fajr-prayer" class="form-input">
+
+                    <!-- Dhuhr -->
+                    <label for="dhuhr-azan" class="form-label">Dhuhr Azan:</label>
+                    <input type="time" id="dhuhr-azan" class="form-input">
+                    <label for="dhuhr-prayer" class="form-label">Dhuhr Prayer:</label>
+                    <input type="time" id="dhuhr-prayer" class="form-input">
+
+                    <!-- Asr -->
+                    <label for="asr-azan" class="form-label">Asr Azan:</label>
+                    <input type="time" id="asr-azan" class="form-input">
+                    <label for="asr-prayer" class="form-label">Asr Prayer:</label>
+                    <input type="time" id="asr-prayer" class="form-input">
+
+                    <!-- Maghrib -->
+                    <label for="maghrib-azan" class="form-label">Maghrib Azan:</label>
+                    <input type="time" id="maghrib-azan" class="form-input">
+                    <label for="maghrib-prayer" class="form-label">Maghrib Prayer:</label>
+                    <input type="time" id="maghrib-prayer" class="form-input">
+
+                    <!-- Isha -->
+                    <label for="isha-azan" class="form-label">Isha Azan:</label>
+                    <input type="time" id="isha-azan" class="form-input">
+                    <label for="isha-prayer" class="form-label">Isha Prayer:</label>
+                    <input type="time" id="isha-prayer" class="form-input">
+
+                    <!-- Jumuah -->
+                    <label for="jumuah-azan" class="form-label">Jumuah Azan:</label>
+                    <input type="time" id="jumuah-azan" class="form-input">
+                    <label for="jumuah-prayer" class="form-label">Jumuah Prayer:</label>
+                    <input type="time" id="jumuah-prayer" class="form-input">
+
+                    <button type="submit" class="admin-button">Save Prayer Times</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhPYAh6wrTzlIdDPmomsFWDOquKlyG6Pk",
+            authDomain: "namaz-times-app.firebaseapp.com",
+            projectId: "namaz-times-app",
+            storageBucket: "namaz-times-app.firebasestorage.app",
+            messagingSenderId: "974582220585",
+            appId: "1:974582220585:web:092a933942836566f95938",
+            measurementId: "G-3CTLSN6BLS"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const userDisplay = document.getElementById('user-display');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authStatusMessage = document.getElementById('auth-status-message');
+        const permissionDeniedMessage = document.getElementById('permission-denied-message');
+        const loadingMessage = document.getElementById('loading-message');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+
+        const superAdminPanel = document.getElementById('super-admin-panel');
+        const masjidAdminPanel = document.getElementById('masjid-admin-panel');
+        const managedMasjidNameSpan = document.getElementById('managed-masjid-name');
+
+        // Super Admin Elements
+        const selectMasjidSuper = document.getElementById('select-masjid-super');
+        const loadMasjidDataSuperBtn = document.getElementById('load-masjid-data-super');
+        const addMasjidForm = document.getElementById('add-masjid-form');
+        const editCityDefaultsForm = document.getElementById('edit-city-defaults-form');
+
+        // Masjid Admin / Shared Edit Elements
+        const editMasjidDetailsForm = document.getElementById('edit-masjid-details-form');
+        const editPrayerTimesForm = document.getElementById('edit-prayer-times-form');
+
+        let currentUserRole = null;
+        let currentUserMasjidId = null;
+        let selectedMasjidIdForEdit = null; // Used by Super Admin to select which masjid to edit
+
+        const CITY_DEFAULT_ID = 'bengaluru'; // Consistent with index.html
+
+        // --- Helper Functions for UI Messages ---
+        function showMessage(element, message, type = 'success') {
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            element.textContent = message;
+            element.classList.remove('hidden');
+            if (type === 'success') {
+                element.classList.remove('bg-red-100', 'border-red-500', 'text-red-700');
+                element.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+            } else { // 'error'
+                element.classList.remove('bg-green-100', 'border-green-500', 'text-green-700');
+                element.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+            }
+            // Hide after 5 seconds
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+
+        function hideAllMessages() {
+            authStatusMessage.classList.add('hidden');
+            permissionDeniedMessage.classList.add('hidden');
+            loadingMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        }
+
+        function showLoading() {
+            hideAllMessages();
+            loadingMessage.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            loadingMessage.classList.add('hidden');
+        }
+
+        // --- Data Fetching Functions ---
+        async function fetchUserRoleAndMasjidId(uid) {
+            try {
+                const userDocRef = doc(db, 'users', uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    // --- DEBUGGING LOGS ---
+                    console.log("DEBUG: Fetched user data from Firestore:", userData);
+                    // --- END DEBUGGING LOGS ---
+                    currentUserRole = userData.role || 'appUser';
+                    currentUserMasjidId = userData.masjidId || null;
+                    userDisplay.textContent = `Logged in as: ${userData.email} (${currentUserRole})`;
+                    // --- DEBUGGING LOGS ---
+                    console.log("DEBUG: Assigned currentUserRole:", currentUserRole);
+                    console.log("DEBUG: Assigned currentUserMasjidId:", currentUserMasjidId);
+                    // --- END DEBUGGING LOGS ---
+                } else {
+                    // --- DEBUGGING LOGS ---
+                    console.log("DEBUG: User document NOT found for UID:", uid);
+                    // --- END DEBUGGING LOGS ---
+                    currentUserRole = 'appUser'; // Default if user doc not found
+                    userDisplay.textContent = `Logged in as: ${auth.currentUser.email} (appUser)`;
+                    showMessage(errorMessage, 'User profile not found in Firestore. Defaulting to appUser role.', 'error');
+                }
+            } catch (error) {
+                console.error("Error fetching user role:", error);
+                showMessage(errorMessage, 'Failed to fetch user role. Please try again.', 'error');
+                currentUserRole = 'appUser'; // Fallback
+                userDisplay.textContent = `Logged in as: ${auth.currentUser.email} (appUser)`;
+            }
+        }
+
+        async function fetchAllMasjids() {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'masjids'));
+                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error("Error fetching all masjids:", error);
+                showMessage(errorMessage, 'Failed to load masjids for selection.', 'error');
+                return [];
+            }
+        }
+
+        async function fetchMasjidDetails(masjidId) {
+            try {
+                const docRef = doc(db, 'masjids', masjidId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    return { id: docSnap.id, ...docSnap.data() };
+                } else {
+                    showMessage(errorMessage, `Masjid with ID ${masjidId} not found.`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                console.error(`Error fetching masjid details for ${masjidId}:`, error);
+                showMessage(errorMessage, `Failed to load details for ${masjidId}.`, 'error');
+                return null;
+            }
+        }
+
+        async function fetchPrayerTimes(masjidId) {
+            try {
+                const docRef = doc(db, 'prayerTimes', masjidId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    return docSnap.data();
+                } else {
+                    showMessage(errorMessage, `Prayer times for masjid ID ${masjidId} not found.`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                console.error(`Error fetching prayer times for ${masjidId}:`, error);
+                showMessage(errorMessage, `Failed to load prayer times for ${masjidId}.`, 'error');
+                return null;
+            }
+        }
+
+        async function fetchCityDefaults() {
+            try {
+                const docRef = doc(db, 'cityDefaults', CITY_DEFAULT_ID);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    return docSnap.data();
+                } else {
+                    showMessage(errorMessage, `City defaults for ${CITY_DEFAULT_ID} not found.`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                console.error(`Error fetching city defaults for ${CITY_DEFAULT_ID}:`, error);
+                showMessage(errorMessage, `Failed to load city defaults.`, 'error');
+                return null;
+            }
+        }
+
+        // --- UI Rendering Functions ---
+        async function renderSuperAdminPanel() {
+            superAdminPanel.classList.remove('hidden');
+            masjidAdminPanel.classList.add('hidden');
+            hideLoading();
+
+            // Populate select dropdown for super admin
+            const masjids = await fetchAllMasjids();
+            selectMasjidSuper.innerHTML = '<option value="">-- Select a Masjid --</option>';
+            masjids.forEach(masjid => {
+                const option = document.createElement('option');
+                option.value = masjid.id;
+                option.textContent = masjid.name;
+                selectMasjidSuper.appendChild(option);
+            });
+
+            // Load city defaults into form
+            const cityDefaults = await fetchCityDefaults();
+            if (cityDefaults) {
+                document.getElementById('city-fajr-end').value = cityDefaults.FajrEnd || '';
+                document.getElementById('city-dhuhr-end').value = cityDefaults.DhuhrEnd || '';
+                document.getElementById('city-asr-end').value = cityDefaults.AsrEnd || '';
+                document.getElementById('city-maghrib-end').value = cityDefaults.MaghribEnd || '';
+                document.getElementById('city-isha-end').value = cityDefaults.IshaEnd || '';
+                document.getElementById('city-jumuah-end').value = cityDefaults.JumuahEnd || '';
+            }
+        }
+
+        async function renderMasjidAdminPanel() {
+            superAdminPanel.classList.add('hidden');
+            masjidAdminPanel.classList.remove('hidden');
+            hideLoading();
+
+            if (!currentUserMasjidId) {
+                showMessage(errorMessage, "Your admin account is not linked to a specific masjid. Please contact super admin.", 'error');
+                masjidAdminPanel.innerHTML = '<p class="text-red-700">No masjid linked to this admin account.</p>';
+                return;
+            }
+
+            // Load details for the bonded masjid
+            const masjidDetails = await fetchMasjidDetails(currentUserMasjidId);
+            const prayerTimes = await fetchPrayerTimes(currentUserMasjidId);
+
+            if (masjidDetails) {
+                managedMasjidNameSpan.textContent = masjidDetails.name;
+                // Populate Masjid Details Form
+                document.getElementById('edit-masjid-name').value = masjidDetails.name || '';
+                document.getElementById('edit-masjid-contact').value = masjidDetails.contactNumber || '';
+                document.getElementById('edit-masjid-email').value = masjidDetails.email || '';
+                document.getElementById('edit-masjid-address').value = masjidDetails.address || '';
+                document.getElementById('edit-masjid-area').value = masjidDetails.area || '';
+                document.getElementById('edit-masjid-zipcode').value = masjidDetails.zipcode || '';
+                document.getElementById('edit-masjid-city').value = masjidDetails.city || '';
+                document.getElementById('edit-masjid-country').value = masjidDetails.country || '';
+                document.getElementById('edit-masjid-latitude').value = masjidDetails.latitude || '';
+                document.getElementById('edit-masjid-longitude').value = masjidDetails.longitude || '';
+            } else {
+                showMessage(errorMessage, `Could not load details for your bonded masjid (${currentUserMasjidId}).`, 'error');
+            }
+
+            if (prayerTimes) {
+                // Populate Prayer Times Form
+                document.getElementById('fajr-azan').value = prayerTimes.FajrAzan || '';
+                document.getElementById('fajr-prayer').value = prayerTimes.FajrPrayer || '';
+                document.getElementById('dhuhr-azan').value = prayerTimes.DhuhrAzan || '';
+                document.getElementById('dhuhr-prayer').value = prayerTimes.DhuhrPrayer || '';
+                document.getElementById('asr-azan').value = prayerTimes.AsrAzan || '';
+                document.getElementById('asr-prayer').value = prayerTimes.AsrPrayer || '';
+                document.getElementById('maghrib-azan').value = prayerTimes.MaghribAzan || '';
+                document.getElementById('maghrib-prayer').value = prayerTimes.MaghribPrayer || '';
+                document.getElementById('isha-azan').value = prayerTimes.IshaAzan || '';
+                document.getElementById('isha-prayer').value = prayerTimes.IshaPrayer || '';
+                document.getElementById('jumuah-azan').value = prayerTimes.JumuahAzan || '';
+                document.getElementById('jumuah-prayer').value = prayerTimes.JumuahPrayer || '';
+            } else {
+                showMessage(errorMessage, `Could not load prayer times for your bonded masjid (${currentUserMasjidId}).`, 'error');
+            }
+        }
+
+        // --- Event Handlers ---
+
+        // Handle Super Admin's Masjid Selection for Editing
+        loadMasjidDataSuperBtn.addEventListener('click', async () => {
+            selectedMasjidIdForEdit = selectMasjidSuper.value;
+            if (!selectedMasjidIdForEdit) {
+                showMessage(errorMessage, 'Please select a masjid to load its data.', 'error');
+                return;
+            }
+            showLoading();
+            const masjidDetails = await fetchMasjidDetails(selectedMasjidIdForEdit);
+            const prayerTimes = await fetchPrayerTimes(selectedMasjidIdForEdit);
+            hideLoading();
+
+            if (masjidDetails) {
+                // Populate the shared edit forms with selected masjid's data
+                document.getElementById('edit-masjid-name').value = masjidDetails.name || '';
+                document.getElementById('edit-masjid-contact').value = masjidDetails.contactNumber || '';
+                document.getElementById('edit-masjid-email').value = masjidDetails.email || '';
+                document.getElementById('edit-masjid-address').value = masjidDetails.address || '';
+                document.getElementById('edit-masjid-area').value = masjidDetails.area || '';
+                document.getElementById('edit-masjid-zipcode').value = masjidDetails.zipcode || '';
+                document.getElementById('edit-masjid-city').value = masjidDetails.city || '';
+                document.getElementById('edit-masjid-country').value = masjidDetails.country || '';
+                document.getElementById('edit-masjid-latitude').value = masjidDetails.latitude || '';
+                document.getElementById('edit-masjid-longitude').value = masjidDetails.longitude || '';
+                showMessage(successMessage, `Data for ${masjidDetails.name} loaded successfully.`);
+            } else {
+                // Clear forms if data not found
+                editMasjidDetailsForm.reset();
+            }
+
+            if (prayerTimes) {
+                document.getElementById('fajr-azan').value = prayerTimes.FajrAzan || '';
+                document.getElementById('fajr-prayer').value = prayerTimes.FajrPrayer || '';
+                document.getElementById('dhuhr-azan').value = prayerTimes.DhuhrAzan || '';
+                document.getElementById('dhuhr-prayer').value = prayerTimes.DhuhrPrayer || '';
+                document.getElementById('asr-azan').value = prayerTimes.AsrAzan || '';
+                document.getElementById('asr-prayer').value = prayerTimes.AsrPrayer || '';
+                document.getElementById('maghrib-azan').value = prayerTimes.MaghribAzan || '';
+                document.getElementById('maghrib-prayer').value = prayerTimes.MaghribPrayer || '';
+                document.getElementById('isha-azan').value = prayerTimes.IshaAzan || '';
+                document.getElementById('isha-prayer').value = prayerTimes.IshaPrayer || '';
+                document.getElementById('jumuah-azan').value = prayerTimes.JumuahAzan || '';
+                document.getElementById('jumuah-prayer').value = prayerTimes.JumuahPrayer || '';
+            } else {
+                editPrayerTimesForm.reset();
+            }
+            // Show the shared edit forms for Super Admin
+            editMasjidDetailsForm.parentElement.classList.remove('hidden');
+            editPrayerTimesForm.parentElement.classList.remove('hidden');
+        });
+
+        // Add New Masjid Form Submission (Super Admin Only)
+        addMasjidForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAllMessages();
+            showLoading();
+
+            const newMasjidId = document.getElementById('new-masjid-id').value.trim();
+            const newMasjidName = document.getElementById('new-masjid-name').value.trim();
+
+            if (!newMasjidId || !newMasjidName) {
+                showMessage(errorMessage, 'Masjid ID and Name are required.', 'error');
+                hideLoading();
+                return;
+            }
+
+            try {
+                // Check if masjid ID already exists
+                const existingMasjid = await getDoc(doc(db, 'masjids', newMasjidId));
+                if (existingMasjid.exists()) {
+                    showMessage(errorMessage, `Masjid ID '${newMasjidId}' already exists. Please choose a different one.`, 'error');
+                    hideLoading();
+                    return;
+                }
+
+                await setDoc(doc(db, 'masjids', newMasjidId), {
+                    name: newMasjidName,
+                    contactNumber: document.getElementById('new-masjid-contact').value.trim(),
+                    email: document.getElementById('new-masjid-email').value.trim(),
+                    address: document.getElementById('new-masjid-address').value.trim(),
+                    area: document.getElementById('new-masjid-area').value.trim(),
+                    zipcode: document.getElementById('new-masjid-zipcode').value.trim(),
+                    city: document.getElementById('new-masjid-city').value.trim(),
+                    country: document.getElementById('new-masjid-country').value.trim(),
+                    latitude: parseFloat(document.getElementById('new-masjid-latitude').value) || null,
+                    longitude: parseFloat(document.getElementById('new-masjid-longitude').value) || null,
+                });
+
+                // Also create an empty prayerTimes document for the new masjid
+                await setDoc(doc(db, 'prayerTimes', newMasjidId), {
+                    FajrAzan: "", FajrPrayer: "",
+                    DhuhrAzan: "", DhuhrPrayer: "",
+                    AsrAzan: "", AsrPrayer: "",
+                    MaghribAzan: "", MaghribPrayer: "",
+                    IshaAzan: "", IshaPrayer: "",
+                    JumuahAzan: "", JumuahPrayer: ""
+                });
+
+                showMessage(successMessage, `Masjid '${newMasjidName}' added successfully!`, 'success');
+                addMasjidForm.reset();
+                await renderSuperAdminPanel(); // Re-populate dropdown
+            } catch (error) {
+                console.error("Error adding new masjid:", error);
+                showMessage(errorMessage, `Failed to add masjid: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Edit City Defaults Form Submission (Super Admin Only)
+        editCityDefaultsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAllMessages();
+            showLoading();
+
+            try {
+                await updateDoc(doc(db, 'cityDefaults', CITY_DEFAULT_ID), {
+                    FajrEnd: document.getElementById('city-fajr-end').value,
+                    DhuhrEnd: document.getElementById('city-dhuhr-end').value,
+                    AsrEnd: document.getElementById('city-asr-end').value,
+                    MaghribEnd: document.getElementById('city-maghrib-end').value,
+                    IshaEnd: document.getElementById('city-isha-end').value,
+                    JumuahEnd: document.getElementById('city-jumuah-end').value,
+                });
+                showMessage(successMessage, 'City default end times updated successfully!', 'success');
+            } catch (error) {
+                console.error("Error updating city defaults:", error);
+                showMessage(errorMessage, `Failed to update city defaults: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Edit Masjid Details Form Submission (Shared by Super and Masjid Admin)
+        editMasjidDetailsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAllMessages();
+            showLoading();
+
+            const targetMasjidId = currentUserRole === 'superAdmin' ? selectedMasjidIdForEdit : currentUserMasjidId;
+
+            if (!targetMasjidId) {
+                showMessage(errorMessage, 'No masjid selected/linked for editing.', 'error');
+                hideLoading();
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'masjids', targetMasjidId), {
+                    name: document.getElementById('edit-masjid-name').value.trim(),
+                    contactNumber: document.getElementById('edit-masjid-contact').value.trim(),
+                    email: document.getElementById('edit-masjid-email').value.trim(),
+                    address: document.getElementById('edit-masjid-address').value.trim(),
+                    area: document.getElementById('edit-masjid-area').value.trim(),
+                    zipcode: document.getElementById('edit-masjid-zipcode').value.trim(),
+                    city: document.getElementById('edit-masjid-city').value.trim(),
+                    country: document.getElementById('edit-masjid-country').value.trim(),
+                    latitude: parseFloat(document.getElementById('edit-masjid-latitude').value) || null,
+                    longitude: parseFloat(document.getElementById('edit-masjid-longitude').value) || null,
+                });
+                showMessage(successMessage, 'Masjid details updated successfully!', 'success');
+                if (currentUserRole === 'superAdmin') {
+                    await renderSuperAdminPanel(); // Re-populate dropdown to reflect name change
+                } else {
+                    await renderMasjidAdminPanel(); // Re-render to update name in header
+                }
+            } catch (error) {
+                console.error("Error updating masjid details:", error);
+                showMessage(errorMessage, `Failed to update masjid details: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Edit Prayer Times Form Submission (Shared by Super and Masjid Admin)
+        editPrayerTimesForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAllMessages();
+            showLoading();
+
+            const targetMasjidId = currentUserRole === 'superAdmin' ? selectedMasjidIdForEdit : currentUserMasjidId;
+
+            if (!targetMasjidId) {
+                showMessage(errorMessage, 'No masjid selected/linked for editing prayer times.', 'error');
+                hideLoading();
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'prayerTimes', targetMasjidId), {
+                    FajrAzan: document.getElementById('fajr-azan').value,
+                    FajrPrayer: document.getElementById('fajr-prayer').value,
+                    DhuhrAzan: document.getElementById('dhuhr-azan').value,
+                    DhuhrPrayer: document.getElementById('dhuhr-prayer').value,
+                    AsrAzan: document.getElementById('asr-azan').value,
+                    AsrPrayer: document.getElementById('asr-prayer').value,
+                    MaghribAzan: document.getElementById('maghrib-azan').value,
+                    MaghribPrayer: document.getElementById('maghrib-prayer').value,
+                    IshaAzan: document.getElementById('isha-azan').value,
+                    IshaPrayer: document.getElementById('isha-prayer').value,
+                    JumuahAzan: document.getElementById('jumuah-azan').value,
+                    JumuahPrayer: document.getElementById('jumuah-prayer').value,
+                });
+                showMessage(successMessage, 'Prayer times updated successfully!', 'success');
+            } catch (error) {
+                console.error("Error updating prayer times:", error);
+                showMessage(errorMessage, `Failed to update prayer times: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'login.html'; // Redirect to login page after logout
+            } catch (error) {
+                console.error('Error logging out:', error);
+                showMessage(errorMessage, 'Logout failed: ' + error.message, 'error');
+            }
+        });
+
+        // --- Initialization and Auth State Listener ---
+        onAuthStateChanged(auth, async (user) => {
+            hideAllMessages();
+            if (user) {
+                showLoading();
+                await fetchUserRoleAndMasjidId(user.uid);
+
+                if (currentUserRole === 'superAdmin') {
+                    renderSuperAdminPanel();
+                } else if (currentUserRole === 'masjidAdmin') {
+                    renderMasjidAdminPanel();
+                } else {
+                    permissionDeniedMessage.classList.remove('hidden');
+                    hideLoading();
+                }
+            } else {
+                authStatusMessage.classList.remove('hidden');
+                superAdminPanel.classList.add('hidden');
+                masjidAdminPanel.classList.add('hidden');
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+</html>
