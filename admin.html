@@ -144,6 +144,10 @@
                                 <td><input type="text" id="masjid-city"></td>
                             </tr>
                             <tr>
+                                <td><label for="masjid-state">State:</label></td>
+                                <td><input type="text" id="masjid-state"></td>
+                            </tr>
+                            <tr>
                                 <td><label for="masjid-country">Country:</label></td>
                                 <td><input type="text" id="masjid-country"></td>
                             </tr>
@@ -254,6 +258,10 @@
                             <tr>
                                 <td><label for="edit-masjid-city-ma">City:</label></td>
                                 <td><input type="text" id="edit-masjid-city-ma"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-state-ma">State:</label></td>
+                                <td><input type="text" id="edit-masjid-state-ma"></td>
                             </tr>
                             <tr>
                                 <td><label for="edit-masjid-country-ma">Country:</label></td>
@@ -653,6 +661,7 @@
                 document.getElementById('edit-masjid-area-ma').value = masjidDetails.area || '';
                 document.getElementById('edit-masjid-zipcode-ma').value = masjidDetails.zipcode || '';
                 document.getElementById('edit-masjid-city-ma').value = masjidDetails.city || '';
+                document.getElementById('edit-masjid-state-ma').value = masjidDetails.state || ''; // Added state for masjid admin
                 document.getElementById('edit-masjid-country-ma').value = masjidDetails.country || '';
                 document.getElementById('edit-masjid-latitude-ma').value = masjidDetails.latitude || '';
                 document.getElementById('edit-masjid-longitude-ma').value = masjidDetails.longitude || '';
@@ -709,6 +718,7 @@
                     document.getElementById('masjid-area').value = masjidDetails.area || '';
                     document.getElementById('masjid-zipcode').value = masjidDetails.zipcode || '';
                     document.getElementById('masjid-city').value = masjidDetails.city || '';
+                    document.getElementById('masjid-state').value = masjidDetails.state || ''; // Populate state input
                     document.getElementById('masjid-country').value = masjidDetails.country || '';
                     document.getElementById('masjid-latitude').value = masjidDetails.latitude || '';
                     document.getElementById('masjid-longitude').value = masjidDetails.longitude || '';
@@ -755,7 +765,7 @@
             prayerTimesSection.classList.remove('hidden'); // Show prayer times section
             masjidDetailsHeader.textContent = 'Add New Masjid Details'; // Update header
             selectMasjidSuper.value = ''; // Clear search/select input
-            showMessage(successMessage, 'Ready to add a new masjid. Please fill in the details.');
+            showMessage(successMessage, 'Ready to add a new masjid. Please fill in the details. Masjid ID will be auto-generated upon saving.');
         });
 
         // Consolidated Save All Changes button
@@ -763,55 +773,46 @@
             hideAllMessages();
             showLoading();
 
-            const masjidId = masjidIdInput.value.trim();
+            let masjidId = masjidIdInput.value.trim();
             const masjidName = document.getElementById('masjid-name').value.trim();
+            const masjidCity = document.getElementById('masjid-city').value.trim();
+            const masjidArea = document.getElementById('masjid-area').value.trim();
+            const masjidState = document.getElementById('masjid-state').value.trim(); // Get state from input
 
-            if (!masjidId || !masjidName) {
-                showMessage(errorMessage, 'Masjid ID and Name are required for saving.', 'error');
+            if (!masjidName || !masjidCity || !masjidArea || !masjidState) {
+                showMessage(errorMessage, 'Masjid Name, City, State, and Area are required for saving.', 'error');
                 hideLoading();
                 return;
             }
 
             try {
-                // Save Masjid Details
-                if (selectedMasjidIdForEdit) { // Editing existing masjid
-                    await updateDoc(doc(db, 'masjids', masjidId), {
-                        name: masjidName,
-                        contactNumber: document.getElementById('masjid-contact').value.trim(),
-                        email: document.getElementById('masjid-email').value.trim(),
-                        address: document.getElementById('masjid-address').value.trim(),
-                        area: document.getElementById('masjid-area').value.trim(),
-                        zipcode: document.getElementById('masjid-zipcode').value.trim(),
-                        city: document.getElementById('masjid-city').value.trim(),
-                        country: document.getElementById('masjid-country').value.trim(),
-                        latitude: parseFloat(document.getElementById('masjid-latitude').value) || null,
-                        longitude: parseFloat(document.getElementById('masjid-longitude').value) || null,
-                        state: filterState.value || null, // Add state from filter
-                        city: filterCity.value || null,   // Add city from filter
-                        area: filterArea.value || null    // Add area from filter
-                    });
-                    showMessage(successMessage, `Masjid '${masjidName}' details updated successfully!`);
-                } else { // Adding new masjid
+                if (!selectedMasjidIdForEdit) { // Adding new masjid
+                    // Auto-generate Masjid ID
+                    const cityPart = masjidCity.substring(0, 3).toLowerCase();
+                    const areaPart = masjidArea.substring(0, 3).toLowerCase();
+                    const namePart = masjidName.replace(/\s+/g, '').toLowerCase();
+                    masjidId = `${cityPart}-${areaPart}-${namePart}`;
+                    masjidIdInput.value = masjidId; // Update the input field with the generated ID
+
                     const existingMasjid = await getDoc(doc(db, 'masjids', masjidId));
                     if (existingMasjid.exists()) {
-                        showMessage(errorMessage, `Masjid ID '${masjidId}' already exists. Please choose a different one.`, 'error');
+                        showMessage(errorMessage, `Generated Masjid ID '${masjidId}' already exists. Please modify name/city/area or select existing.`, 'error');
                         hideLoading();
                         return;
                     }
+                    
                     await setDoc(doc(db, 'masjids', masjidId), {
                         name: masjidName,
                         contactNumber: document.getElementById('masjid-contact').value.trim(),
                         email: document.getElementById('masjid-email').value.trim(),
                         address: document.getElementById('masjid-address').value.trim(),
-                        area: document.getElementById('masjid-area').value.trim(),
+                        area: masjidArea, // Use value from form input
                         zipcode: document.getElementById('masjid-zipcode').value.trim(),
-                        city: document.getElementById('masjid-city').value.trim(),
+                        city: masjidCity, // Use value from form input
+                        state: masjidState, // Use value from form input
                         country: document.getElementById('masjid-country').value.trim(),
                         latitude: parseFloat(document.getElementById('masjid-latitude').value) || null,
                         longitude: parseFloat(document.getElementById('masjid-longitude').value) || null,
-                        state: filterState.value || null, // Add state from filter
-                        city: filterCity.value || null,   // Add city from filter
-                        area: filterArea.value || null    // Add area from filter
                     });
                     // Also create an empty prayerTimes document for the new masjid
                     await setDoc(doc(db, 'prayerTimes', masjidId), {
@@ -823,9 +824,24 @@
                         JumuahAzan: "", JumuahPrayer: ""
                     });
                     showMessage(successMessage, `Masjid '${masjidName}' added successfully!`);
+                } else { // Editing existing masjid
+                    await updateDoc(doc(db, 'masjids', masjidId), {
+                        name: masjidName,
+                        contactNumber: document.getElementById('masjid-contact').value.trim(),
+                        email: document.getElementById('masjid-email').value.trim(),
+                        address: document.getElementById('masjid-address').value.trim(),
+                        area: masjidArea, // Use value from form input
+                        zipcode: document.getElementById('masjid-zipcode').value.trim(),
+                        city: masjidCity, // Use value from form input
+                        state: masjidState, // Use value from form input
+                        country: document.getElementById('masjid-country').value.trim(),
+                        latitude: parseFloat(document.getElementById('masjid-latitude').value) || null,
+                        longitude: parseFloat(document.getElementById('masjid-longitude').value) || null,
+                    });
+                    showMessage(successMessage, `Masjid '${masjidName}' details updated successfully!`);
                 }
 
-                // Save Prayer Times
+                // Save Prayer Times (always uses the masjidId from the input, which is now correct)
                 await updateDoc(doc(db, 'prayerTimes', masjidId), {
                     FajrAzan: document.getElementById('fajr-azan').value,
                     FajrPrayer: document.getElementById('fajr-prayer').value,
@@ -872,6 +888,7 @@
                     area: document.getElementById('edit-masjid-area-ma').value.trim(),
                     zipcode: document.getElementById('edit-masjid-zipcode-ma').value.trim(),
                     city: document.getElementById('edit-masjid-city-ma').value.trim(),
+                    state: document.getElementById('edit-masjid-state-ma').value.trim(), // Added state for masjid admin
                     country: document.getElementById('edit-masjid-country-ma').value.trim(),
                     latitude: parseFloat(document.getElementById('edit-masjid-latitude-ma').value) || null,
                     longitude: parseFloat(document.getElementById('edit-masjid-longitude-ma').value) || null,
