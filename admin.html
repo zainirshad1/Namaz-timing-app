@@ -27,6 +27,23 @@
         .danger-button {
             @apply bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out;
         }
+        /* Table specific styles */
+        .admin-table {
+            @apply w-full border-collapse;
+        }
+        .admin-table th, .admin-table td {
+            @apply p-3 border border-gray-200 text-left;
+        }
+        .admin-table th {
+            @apply bg-gray-100 font-semibold text-gray-700;
+        }
+        .admin-table input[type="text"],
+        .admin-table input[type="tel"],
+        .admin-table input[type="email"],
+        .admin-table input[type="number"],
+        .admin-table input[type="time"] {
+            @apply w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -55,6 +72,67 @@
         <div id="super-admin-panel" class="hidden">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Super Admin Dashboard</h2>
 
+            <!-- Add New Masjid -->
+            <div class="admin-section">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Add New Masjid</h3>
+                <form id="add-masjid-form">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Add Masjid Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><label for="new-masjid-id">Masjid ID (Unique):</label></td>
+                                <td><input type="text" id="new-masjid-id" required></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-name">Masjid Name:</label></td>
+                                <td><input type="text" id="new-masjid-name" required></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-contact">Contact Number:</label></td>
+                                <td><input type="tel" id="new-masjid-contact"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-email">Email:</label></td>
+                                <td><input type="email" id="new-masjid-email"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-address">Address:</label></td>
+                                <td><input type="text" id="new-masjid-address"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-area">Area:</label></td>
+                                <td><input type="text" id="new-masjid-area"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-zipcode">Zipcode:</label></td>
+                                <td><input type="text" id="new-masjid-zipcode"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-city">City:</label></td>
+                                <td><input type="text" id="new-masjid-city"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-country">Country:</label></td>
+                                <td><input type="text" id="new-masjid-country"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-latitude">Latitude:</label></td>
+                                <td><input type="number" step="any" id="new-masjid-latitude"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="new-masjid-longitude">Longitude:</label></td>
+                                <td><input type="number" step="any" id="new-masjid-longitude"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="admin-button mt-4">Add Masjid</button>
+                </form>
+            </div>
+            
             <!-- Edit Existing Masjid -->
             <div class="admin-section">
                 <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Existing Masjid</h3>
@@ -65,64 +143,158 @@
                 <button id="load-masjid-data-super" class="admin-button">Load Masjid Data</button>
             </div>
 
-            <!-- Add New Masjid -->
-            <div class="admin-section">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Add New Masjid</h3>
-                <form id="add-masjid-form">
-                    <label for="new-masjid-id" class="form-label">Masjid ID (Unique, e.g., masjid-al-noor):</label>
-                    <input type="text" id="new-masjid-id" class="form-input" required>
+            <!-- Shared Edit Masjid Details Form (Visible for Super Admin after load) -->
+            <div id="super-admin-edit-details-section" class="admin-section hidden">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Masjid Details for Selected Masjid</h3>
+                <form id="edit-masjid-details-form">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Masjid Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><label for="edit-masjid-name">Masjid Name:</label></td>
+                                <td><input type="text" id="edit-masjid-name" required></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-contact">Contact Number:</label></td>
+                                <td><input type="tel" id="edit-masjid-contact"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-email">Email:</label></td>
+                                <td><input type="email" id="edit-masjid-email"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-address">Address:</label></td>
+                                <td><input type="text" id="edit-masjid-address"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-area">Area:</label></td>
+                                <td><input type="text" id="edit-masjid-area"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-zipcode">Zipcode:</label></td>
+                                <td><input type="text" id="edit-masjid-zipcode"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-city">City:</label></td>
+                                <td><input type="text" id="edit-masjid-city"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-country">Country:</label></td>
+                                <td><input type="text" id="edit-masjid-country"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-latitude">Latitude:</label></td>
+                                <td><input type="number" step="any" id="edit-masjid-latitude"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-longitude">Longitude:</label></td>
+                                <td><input type="number" step="any" id="edit-masjid-longitude"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="admin-button mt-4">Save Masjid Details</button>
+                </form>
+            </div>
 
-                    <label for="new-masjid-name" class="form-label">Masjid Name:</label>
-                    <input type="text" id="new-masjid-name" class="form-input" required>
-                    
-                    <label for="new-masjid-contact" class="form-label">Contact Number:</label>
-                    <input type="tel" id="new-masjid-contact" class="form-input">
-                    
-                    <label for="new-masjid-email" class="form-label">Email:</label>
-                    <input type="email" id="new-masjid-email" class="form-input">
-                    
-                    <label for="new-masjid-address" class="form-label">Address:</label>
-                    <input type="text" id="new-masjid-address" class="form-input">
-                    
-                    <label for="new-masjid-area" class="form-label">Area:</label>
-                    <input type="text" id="new-masjid-area" class="form-input">
-                    
-                    <label for="new-masjid-zipcode" class="form-label">Zipcode:</label>
-                    <input type="text" id="new-masjid-zipcode" class="form-input">
-                    
-                    <label for="new-masjid-city" class="form-label">City:</label>
-                    <input type="text" id="new-masjid-city" class="form-input">
-                    
-                    <label for="new-masjid-country" class="form-label">Country:</label>
-                    <input type="text" id="new-masjid-country" class="form-input">
-                    
-                    <label for="new-masjid-latitude" class="form-label">Latitude:</label>
-                    <input type="number" step="any" id="new-masjid-latitude" class="form-input">
-                    
-                    <label for="new-masjid-longitude" class="form-label">Longitude:</label>
-                    <input type="number" step="any" id="new-masjid-longitude" class="form-input">
-
-                    <button type="submit" class="admin-button">Add Masjid</button>
+            <!-- Shared Edit Prayer Times Form (Visible for Super Admin after load) -->
+            <div id="super-admin-edit-prayer-times-section" class="admin-section hidden">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Prayer Times for Selected Masjid</h3>
+                <form id="edit-prayer-times-form">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Prayer Name</th>
+                                <th>Azan</th>
+                                <th>Prayer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fajr</td>
+                                <td><input type="time" id="fajr-azan"></td>
+                                <td><input type="time" id="fajr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Dhuhr</td>
+                                <td><input type="time" id="dhuhr-azan"></td>
+                                <td><input type="time" id="dhuhr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Asr</td>
+                                <td><input type="time" id="asr-azan"></td>
+                                <td><input type="time" id="asr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Maghrib</td>
+                                <td><input type="time" id="maghrib-azan"></td>
+                                <td><input type="time" id="maghrib-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Isha</td>
+                                <td><input type="time" id="isha-azan"></td>
+                                <td><input type="time" id="isha-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Jumuah</td>
+                                <td><input type="time" id="jumuah-azan"></td>
+                                <td><input type="time" id="jumuah-prayer"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="admin-button mt-4">Save Prayer Times</button>
                 </form>
             </div>
             
-            <!-- Edit City Defaults -->
+            <!-- Edit City Defaults (Now for Azan/Prayer times, not End times) -->
             <div class="admin-section">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit City Default End Times (Bengaluru)</h3>
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit City Default Azan & Prayer Times (Bengaluru)</h3>
                 <form id="edit-city-defaults-form">
-                    <label for="city-fajr-end" class="form-label">Fajr End:</label>
-                    <input type="time" id="city-fajr-end" class="form-input">
-                    <label for="city-dhuhr-end" class="form-label">Dhuhr End:</label>
-                    <input type="time" id="city-dhuhr-end" class="form-input">
-                    <label for="city-asr-end" class="form-label">Asr End:</label>
-                    <input type="time" id="city-asr-end" class="form-input">
-                    <label for="city-maghrib-end" class="form-label">Maghrib End:</label>
-                    <input type="time" id="city-maghrib-end" class="form-input">
-                    <label for="city-isha-end" class="form-label">Isha End:</label>
-                    <input type="time" id="city-isha-end" class="form-input">
-                    <label for="city-jumuah-end" class="form-label">Jumuah End:</label>
-                    <input type="time" id="city-jumuah-end" class="form-input">
-                    <button type="submit" class="admin-button">Save City Defaults</button>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Prayer Name</th>
+                                <th>Azan</th>
+                                <th>Prayer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fajr</td>
+                                <td><input type="time" id="city-fajr-azan"></td>
+                                <td><input type="time" id="city-fajr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Dhuhr</td>
+                                <td><input type="time" id="city-dhuhr-azan"></td>
+                                <td><input type="time" id="city-dhuhr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Asr</td>
+                                <td><input type="time" id="city-asr-azan"></td>
+                                <td><input type="time" id="city-asr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Maghrib</td>
+                                <td><input type="time" id="city-maghrib-azan"></td>
+                                <td><input type="time" id="city-maghrib-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Isha</td>
+                                <td><input type="time" id="city-isha-azan"></td>
+                                <td><input type="time" id="city-isha-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Jumuah</td>
+                                <td><input type="time" id="city-jumuah-azan"></td>
+                                <td><input type="time" id="city-jumuah-prayer"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="admin-button mt-4">Save City Defaults</button>
                 </form>
             </div>
         </div>
@@ -134,37 +306,56 @@
             <div class="admin-section">
                 <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Masjid Details</h3>
                 <form id="edit-masjid-details-form">
-                    <label for="edit-masjid-name" class="form-label">Masjid Name:</label>
-                    <input type="text" id="edit-masjid-name" class="form-input" required>
-                    
-                    <label for="edit-masjid-contact" class="form-label">Contact Number:</label>
-                    <input type="tel" id="edit-masjid-contact" class="form-input">
-                    
-                    <label for="edit-masjid-email" class="form-label">Email:</label>
-                    <input type="email" id="edit-masjid-email" class="form-input">
-                    
-                    <label for="edit-masjid-address" class="form-label">Address:</label>
-                    <input type="text" id="edit-masjid-address" class="form-input">
-                    
-                    <label for="edit-masjid-area" class="form-label">Area:</label>
-                    <input type="text" id="edit-masjid-area" class="form-input">
-                    
-                    <label for="edit-masjid-zipcode" class="form-label">Zipcode:</label>
-                    <input type="text" id="edit-masjid-zipcode" class="form-input">
-                    
-                    <label for="edit-masjid-city" class="form-label">City:</label>
-                    <input type="text" id="edit-masjid-city" class="form-input">
-                    
-                    <label for="edit-masjid-country" class="form-label">Country:</label>
-                    <input type="text" id="edit-masjid-country" class="form-input">
-                    
-                    <label for="edit-masjid-latitude" class="form-label">Latitude:</label>
-                    <input type="number" step="any" id="edit-masjid-latitude" class="form-input">
-                    
-                    <label for="edit-masjid-longitude" class="form-label">Longitude:</label>
-                    <input type="number" step="any" id="edit-masjid-longitude" class="form-input">
-
-                    <button type="submit" class="admin-button">Save Masjid Details</button>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Masjid Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><label for="edit-masjid-name">Masjid Name:</label></td>
+                                <td><input type="text" id="edit-masjid-name" required></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-contact">Contact Number:</label></td>
+                                <td><input type="tel" id="edit-masjid-contact"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-email">Email:</label></td>
+                                <td><input type="email" id="edit-masjid-email"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-address">Address:</label></td>
+                                <td><input type="text" id="edit-masjid-address"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-area">Area:</label></td>
+                                <td><input type="text" id="edit-masjid-area"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-zipcode">Zipcode:</label></td>
+                                <td><input type="text" id="edit-masjid-zipcode"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-city">City:</label></td>
+                                <td><input type="text" id="edit-masjid-city"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-country">Country:</label></td>
+                                <td><input type="text" id="edit-masjid-country"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-latitude">Latitude:</label></td>
+                                <td><input type="number" step="any" id="edit-masjid-latitude"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="edit-masjid-longitude">Longitude:</label></td>
+                                <td><input type="number" step="any" id="edit-masjid-longitude"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="admin-button mt-4">Save Masjid Details</button>
                 </form>
             </div>
 
@@ -172,43 +363,48 @@
             <div class="admin-section">
                 <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Prayer Times</h3>
                 <form id="edit-prayer-times-form">
-                    <!-- Fajr -->
-                    <label for="fajr-azan" class="form-label">Fajr Azan:</label>
-                    <input type="time" id="fajr-azan" class="form-input">
-                    <label for="fajr-prayer" class="form-label">Fajr Prayer:</label>
-                    <input type="time" id="fajr-prayer" class="form-input">
-
-                    <!-- Dhuhr -->
-                    <label for="dhuhr-azan" class="form-label">Dhuhr Azan:</label>
-                    <input type="time" id="dhuhr-azan" class="form-input">
-                    <label for="dhuhr-prayer" class="form-label">Dhuhr Prayer:</label>
-                    <input type="time" id="dhuhr-prayer" class="form-input">
-
-                    <!-- Asr -->
-                    <label for="asr-azan" class="form-label">Asr Azan:</label>
-                    <input type="time" id="asr-azan" class="form-input">
-                    <label for="asr-prayer" class="form-label">Asr Prayer:</label>
-                    <input type="time" id="asr-prayer" class="form-input">
-
-                    <!-- Maghrib -->
-                    <label for="maghrib-azan" class="form-label">Maghrib Azan:</label>
-                    <input type="time" id="maghrib-azan" class="form-input">
-                    <label for="maghrib-prayer" class="form-label">Maghrib Prayer:</label>
-                    <input type="time" id="maghrib-prayer" class="form-input">
-
-                    <!-- Isha -->
-                    <label for="isha-azan" class="form-label">Isha Azan:</label>
-                    <input type="time" id="isha-azan" class="form-input">
-                    <label for="isha-prayer" class="form-label">Isha Prayer:</label>
-                    <input type="time" id="isha-prayer" class="form-input">
-
-                    <!-- Jumuah -->
-                    <label for="jumuah-azan" class="form-label">Jumuah Azan:</label>
-                    <input type="time" id="jumuah-azan" class="form-input">
-                    <label for="jumuah-prayer" class="form-label">Jumuah Prayer:</label>
-                    <input type="time" id="jumuah-prayer" class="form-input">
-
-                    <button type="submit" class="admin-button">Save Prayer Times</button>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Prayer Name</th>
+                                <th>Azan</th>
+                                <th>Prayer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fajr</td>
+                                <td><input type="time" id="fajr-azan"></td>
+                                <td><input type="time" id="fajr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Dhuhr</td>
+                                <td><input type="time" id="dhuhr-azan"></td>
+                                <td><input type="time" id="dhuhr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Asr</td>
+                                <td><input type="time" id="asr-azan"></td>
+                                <td><input type="time" id="asr-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Maghrib</td>
+                                <td><input type="time" id="maghrib-azan"></td>
+                                <td><input type="time" id="maghrib-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Isha</td>
+                                <td><input type="time" id="isha-azan"></td>
+                                <td><input type="time" id="isha-prayer"></td>
+                            </tr>
+                            <tr>
+                                <td>Jumuah</td>
+                                <td><input type="time" id="jumuah-azan"></td>
+                                <td><input type="time" id="jumuah-prayer"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="admin-button mt-4">Save Prayer Times</button>
                 </form>
             </div>
         </div>
@@ -253,6 +449,10 @@
         const loadMasjidDataSuperBtn = document.getElementById('load-masjid-data-super');
         const addMasjidForm = document.getElementById('add-masjid-form');
         const editCityDefaultsForm = document.getElementById('edit-city-defaults-form');
+
+        // These sections will be shown/hidden for Super Admin
+        const superAdminEditDetailsSection = document.getElementById('super-admin-edit-details-section');
+        const superAdminEditPrayerTimesSection = document.getElementById('super-admin-edit-prayer-times-section');
 
         // Masjid Admin / Shared Edit Elements
         const editMasjidDetailsForm = document.getElementById('edit-masjid-details-form');
@@ -307,20 +507,14 @@
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
                     const userData = userDocSnap.data();
-                    // --- DEBUGGING LOGS ---
                     console.log("DEBUG: Fetched user data from Firestore:", userData);
-                    // --- END DEBUGGING LOGS ---
                     currentUserRole = userData.role || 'appUser';
                     currentUserMasjidId = userData.masjidId || null;
                     userDisplay.textContent = `Logged in as: ${userData.email} (${currentUserRole})`;
-                    // --- DEBUGGING LOGS ---
                     console.log("DEBUG: Assigned currentUserRole:", currentUserRole);
                     console.log("DEBUG: Assigned currentUserMasjidId:", currentUserMasjidId);
-                    // --- END DEBUGGING LOGS ---
                 } else {
-                    // --- DEBUGGING LOGS ---
                     console.log("DEBUG: User document NOT found for UID:", uid);
-                    // --- END DEBUGGING LOGS ---
                     currentUserRole = 'appUser'; // Default if user doc not found
                     userDisplay.textContent = `Logged in as: ${auth.currentUser.email} (appUser)`;
                     showMessage(errorMessage, 'User profile not found in Firestore. Defaulting to appUser role.', 'error');
@@ -414,13 +608,24 @@
             // Load city defaults into form
             const cityDefaults = await fetchCityDefaults();
             if (cityDefaults) {
-                document.getElementById('city-fajr-end').value = cityDefaults.FajrEnd || '';
-                document.getElementById('city-dhuhr-end').value = cityDefaults.DhuhrEnd || '';
-                document.getElementById('city-asr-end').value = cityDefaults.AsrEnd || '';
-                document.getElementById('city-maghrib-end').value = cityDefaults.MaghribEnd || '';
-                document.getElementById('city-isha-end').value = cityDefaults.IshaEnd || '';
-                document.getElementById('city-jumuah-end').value = cityDefaults.JumuahEnd || '';
+                // Populate Azan and Prayer time fields for city defaults
+                document.getElementById('city-fajr-azan').value = cityDefaults.FajrAzan || '';
+                document.getElementById('city-fajr-prayer').value = cityDefaults.FajrPrayer || '';
+                document.getElementById('city-dhuhr-azan').value = cityDefaults.DhuhrAzan || '';
+                document.getElementById('city-dhuhr-prayer').value = cityDefaults.DhuhrPrayer || '';
+                document.getElementById('city-asr-azan').value = cityDefaults.AsrAzan || '';
+                document.getElementById('city-asr-prayer').value = cityDefaults.AsrPrayer || '';
+                document.getElementById('city-maghrib-azan').value = cityDefaults.MaghribAzan || '';
+                document.getElementById('city-maghrib-prayer').value = cityDefaults.MaghribPrayer || '';
+                document.getElementById('city-isha-azan').value = cityDefaults.IshaAzan || '';
+                document.getElementById('city-isha-prayer').value = cityDefaults.IshaPrayer || '';
+                document.getElementById('city-jumuah-azan').value = cityDefaults.JumuahAzan || '';
+                document.getElementById('city-jumuah-prayer').value = cityDefaults.JumuahPrayer || '';
             }
+
+            // Initially hide the shared edit forms for Super Admin until a masjid is selected
+            superAdminEditDetailsSection.classList.add('hidden');
+            superAdminEditPrayerTimesSection.classList.add('hidden');
         }
 
         async function renderMasjidAdminPanel() {
@@ -481,6 +686,9 @@
             selectedMasjidIdForEdit = selectMasjidSuper.value;
             if (!selectedMasjidIdForEdit) {
                 showMessage(errorMessage, 'Please select a masjid to load its data.', 'error');
+                // Hide the edit forms if nothing is selected
+                superAdminEditDetailsSection.classList.add('hidden');
+                superAdminEditPrayerTimesSection.classList.add('hidden');
                 return;
             }
             showLoading();
@@ -523,8 +731,8 @@
                 editPrayerTimesForm.reset();
             }
             // Show the shared edit forms for Super Admin
-            editMasjidDetailsForm.parentElement.classList.remove('hidden');
-            editPrayerTimesForm.parentElement.classList.remove('hidden');
+            superAdminEditDetailsSection.classList.remove('hidden');
+            superAdminEditPrayerTimesSection.classList.remove('hidden');
         });
 
         // Add New Masjid Form Submission (Super Admin Only)
@@ -592,15 +800,22 @@
             showLoading();
 
             try {
+                // Update with Azan and Prayer times for city defaults
                 await updateDoc(doc(db, 'cityDefaults', CITY_DEFAULT_ID), {
-                    FajrEnd: document.getElementById('city-fajr-end').value,
-                    DhuhrEnd: document.getElementById('city-dhuhr-end').value,
-                    AsrEnd: document.getElementById('city-asr-end').value,
-                    MaghribEnd: document.getElementById('city-maghrib-end').value,
-                    IshaEnd: document.getElementById('city-isha-end').value,
-                    JumuahEnd: document.getElementById('city-jumuah-end').value,
+                    FajrAzan: document.getElementById('city-fajr-azan').value,
+                    FajrPrayer: document.getElementById('city-fajr-prayer').value,
+                    DhuhrAzan: document.getElementById('city-dhuhr-azan').value,
+                    DhuhrPrayer: document.getElementById('city-dhuhr-prayer').value,
+                    AsrAzan: document.getElementById('city-asr-azan').value,
+                    AsrPrayer: document.getElementById('city-asr-prayer').value,
+                    MaghribAzan: document.getElementById('city-maghrib-azan').value,
+                    MaghribPrayer: document.getElementById('city-maghrib-prayer').value,
+                    IshaAzan: document.getElementById('city-isha-azan').value,
+                    IshaPrayer: document.getElementById('city-isha-prayer').value,
+                    JumuahAzan: document.getElementById('city-jumuah-azan').value,
+                    JumuahPrayer: document.getElementById('city-jumuah-prayer').value,
                 });
-                showMessage(successMessage, 'City default end times updated successfully!', 'success');
+                showMessage(successMessage, 'City default Azan and Prayer times updated successfully!', 'success');
             } catch (error) {
                 console.error("Error updating city defaults:", error);
                 showMessage(errorMessage, `Failed to update city defaults: ${error.message}`, 'error');
