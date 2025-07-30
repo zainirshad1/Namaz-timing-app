@@ -99,7 +99,7 @@
       if (!validatePassword(password)) {
         errorMsg.textContent = 'Password must be at least 8 characters long and contain at least one special character.';
         return;
-      }
+        }
 
       console.log("Registering user with email:", email);
       console.log("First Name:", firstName);
@@ -108,8 +108,8 @@
       // Register the user with Firebase Authentication
       createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
-          // Use email as user ID
-          const userId = email; // or use userCredential.user.uid for UID
+          // *** FIX APPLIED HERE: Use userCredential.user.uid as the Firestore Document ID ***
+          const userId = userCredential.user.uid; 
 
           // Store additional user information in Firestore
           await setDoc(doc(db, 'users', userId), {
@@ -118,7 +118,8 @@
             dob: dob,
             age: age,
             contactNumber: contactNumber,
-            role: 'appUser ', // Default role for all new users
+            email: email, // Store email as a field, not the document ID
+            role: 'appUser', // Default role for all new users
             masjidId: null // Initially set to null, can be updated later for masjid admins
           });
 
