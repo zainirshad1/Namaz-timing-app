@@ -28,7 +28,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import { getAuth, createUser WithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
     import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 
     // Your web app's Firebase configuration
@@ -106,7 +106,7 @@
       console.log("Last Name:", lastName);
 
       // Register the user with Firebase Authentication
-      createUser WithEmailAndPassword(auth, email, password)
+      createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
           // Use email as user ID
           const userId = email; // or use userCredential.user.uid for UID
