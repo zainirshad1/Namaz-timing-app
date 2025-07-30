@@ -72,138 +72,98 @@
         <div id="super-admin-panel" class="hidden">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Super Admin Dashboard</h2>
 
-            <!-- Add New Masjid -->
+            <!-- Advanced Filtering and Masjid Selection -->
             <div class="admin-section">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Add New Masjid</h3>
-                <form id="add-masjid-form">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th colspan="2">Add Masjid Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><label for="new-masjid-id">Masjid ID (Unique):</label></td>
-                                <td><input type="text" id="new-masjid-id" required></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-name">Masjid Name:</label></td>
-                                <td><input type="text" id="new-masjid-name" required></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-contact">Contact Number:</label></td>
-                                <td><input type="tel" id="new-masjid-contact"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-email">Email:</label></td>
-                                <td><input type="email" id="new-masjid-email"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-address">Address:</label></td>
-                                <td><input type="text" id="new-masjid-address"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-area">Area:</label></td>
-                                <td><input type="text" id="new-masjid-area"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-zipcode">Zipcode:</label></td>
-                                <td><input type="text" id="new-masjid-zipcode"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-city">City:</label></td>
-                                <td><input type="text" id="new-masjid-city"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-country">Country:</label></td>
-                                <td><input type="text" id="new-masjid-country"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-latitude">Latitude:</label></td>
-                                <td><input type="number" step="any" id="new-masjid-latitude"></td>
-                            </tr>
-                            <tr>
-                                <td><label for="new-masjid-longitude">Longitude:</label></td>
-                                <td><input type="number" step="any" id="new-masjid-longitude"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button type="submit" class="admin-button mt-4">Add Masjid</button>
-                </form>
-            </div>
-            
-            <!-- Edit Existing Masjid -->
-            <div class="admin-section">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Existing Masjid</h3>
-                <label for="select-masjid-super" class="form-label">Select Masjid:</label>
-                <select id="select-masjid-super" class="form-input mb-4">
-                    <option value="">-- Select a Masjid --</option>
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Filter & Select Masjid</h3>
+                
+                <label for="filter-state" class="form-label">State:</label>
+                <select id="filter-state" class="form-input">
+                    <option value="">All States</option>
                 </select>
-                <button id="load-masjid-data-super" class="admin-button">Load Masjid Data</button>
+
+                <label for="filter-city" class="form-label">City:</label>
+                <select id="filter-city" class="form-input" disabled>
+                    <option value="">All Cities</option>
+                </select>
+
+                <label for="filter-area" class="form-label">Area:</label>
+                <select id="filter-area" class="form-input" disabled>
+                    <option value="">All Areas</option>
+                </select>
+
+                <label for="select-masjid-super" class="form-label">Search or Select Masjid:</label>
+                <input type="text" id="select-masjid-super" class="form-input" list="masjid-list-options" placeholder="Type to search or select a masjid...">
+                <datalist id="masjid-list-options"></datalist>
+                
+                <div class="flex space-x-2 mt-4">
+                    <button id="add-new-masjid-btn" class="admin-button bg-blue-600 hover:bg-blue-700">Add New Masjid</button>
+                </div>
             </div>
 
-            <!-- Shared Edit Masjid Details Form (Visible for Super Admin after load) -->
-            <div id="super-admin-edit-details-section" class="admin-section hidden">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Masjid Details for Selected Masjid</h3>
-                <form id="edit-masjid-details-form">
+            <!-- Consolidated Masjid Details Form -->
+            <div id="masjid-details-section" class="admin-section hidden">
+                <h3 class="text-lg font-medium text-gray-700 mb-4" id="masjid-details-header">Masjid Details</h3>
+                <form id="masjid-details-form">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th colspan="2">Masjid Details</th>
+                                <th colspan="2">Masjid Information</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><label for="edit-masjid-name">Masjid Name:</label></td>
-                                <td><input type="text" id="edit-masjid-name" required></td>
+                            <tr id="masjid-id-row">
+                                <td><label for="masjid-id">Masjid ID (Unique):</label></td>
+                                <td><input type="text" id="masjid-id" required></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-contact">Contact Number:</label></td>
-                                <td><input type="tel" id="edit-masjid-contact"></td>
+                                <td><label for="masjid-name">Masjid Name:</label></td>
+                                <td><input type="text" id="masjid-name" required></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-email">Email:</label></td>
-                                <td><input type="email" id="edit-masjid-email"></td>
+                                <td><label for="masjid-contact">Contact Number:</label></td>
+                                <td><input type="tel" id="masjid-contact"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-address">Address:</label></td>
-                                <td><input type="text" id="edit-masjid-address"></td>
+                                <td><label for="masjid-email">Email:</label></td>
+                                <td><input type="email" id="masjid-email"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-area">Area:</label></td>
-                                <td><input type="text" id="edit-masjid-area"></td>
+                                <td><label for="masjid-address">Address:</label></td>
+                                <td><input type="text" id="masjid-address"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-zipcode">Zipcode:</label></td>
-                                <td><input type="text" id="edit-masjid-zipcode"></td>
+                                <td><label for="masjid-area">Area:</label></td>
+                                <td><input type="text" id="masjid-area"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-city">City:</label></td>
-                                <td><input type="text" id="edit-masjid-city"></td>
+                                <td><label for="masjid-zipcode">Zipcode:</label></td>
+                                <td><input type="text" id="masjid-zipcode"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-country">Country:</label></td>
-                                <td><input type="text" id="edit-masjid-country"></td>
+                                <td><label for="masjid-city">City:</label></td>
+                                <td><input type="text" id="masjid-city"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-latitude">Latitude:</label></td>
-                                <td><input type="number" step="any" id="edit-masjid-latitude"></td>
+                                <td><label for="masjid-country">Country:</label></td>
+                                <td><input type="text" id="masjid-country"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-longitude">Longitude:</label></td>
-                                <td><input type="number" step="any" id="edit-masjid-longitude"></td>
+                                <td><label for="masjid-latitude">Latitude:</label></td>
+                                <td><input type="number" step="any" id="masjid-latitude"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="masjid-longitude">Longitude:</label></td>
+                                <td><input type="number" step="any" id="masjid-longitude"></td>
                             </tr>
                         </tbody>
                     </table>
-                    <button type="submit" class="admin-button mt-4">Save Masjid Details</button>
                 </form>
             </div>
 
-            <!-- Shared Edit Prayer Times Form (Visible for Super Admin after load) -->
-            <div id="super-admin-edit-prayer-times-section" class="admin-section hidden">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Prayer Times for Selected Masjid</h3>
-                <form id="edit-prayer-times-form">
+            <!-- Consolidated Prayer Times Form -->
+            <div id="prayer-times-section" class="admin-section hidden">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Prayer Times</h3>
+                <form id="prayer-times-form">
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -245,57 +205,11 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button type="submit" class="admin-button mt-4">Save Prayer Times</button>
                 </form>
-            </div>
-            
-            <!-- Edit City Defaults (Now for Azan/Prayer times, not End times) -->
-            <div class="admin-section">
-                <h3 class="text-lg font-medium text-gray-700 mb-4">Edit City Default Azan & Prayer Times (Bengaluru)</h3>
-                <form id="edit-city-defaults-form">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Prayer Name</th>
-                                <th>Azan</th>
-                                <th>Prayer</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Fajr</td>
-                                <td><input type="time" id="city-fajr-azan"></td>
-                                <td><input type="time" id="city-fajr-prayer"></td>
-                            </tr>
-                            <tr>
-                                <td>Dhuhr</td>
-                                <td><input type="time" id="city-dhuhr-azan"></td>
-                                <td><input type="time" id="city-dhuhr-prayer"></td>
-                            </tr>
-                            <tr>
-                                <td>Asr</td>
-                                <td><input type="time" id="city-asr-azan"></td>
-                                <td><input type="time" id="city-asr-prayer"></td>
-                            </tr>
-                            <tr>
-                                <td>Maghrib</td>
-                                <td><input type="time" id="city-maghrib-azan"></td>
-                                <td><input type="time" id="city-maghrib-prayer"></td>
-                            </tr>
-                            <tr>
-                                <td>Isha</td>
-                                <td><input type="time" id="city-isha-azan"></td>
-                                <td><input type="time" id="city-isha-prayer"></td>
-                            </tr>
-                            <tr>
-                                <td>Jumuah</td>
-                                <td><input type="time" id="city-jumuah-azan"></td>
-                                <td><input type="time" id="city-jumuah-prayer"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button type="submit" class="admin-button mt-4">Save City Defaults</button>
-                </form>
+                <div class="flex space-x-2 mt-4">
+                    <button id="save-all-changes-btn" class="admin-button">Save All Changes</button>
+                    <button type="button" class="danger-button" onclick="masjidDetailsForm.reset(); prayerTimesForm.reset(); selectedMasjidIdForEdit = null; toggleMasjidIdInput(true); clearAndHideMasjidForms();">Reset All Forms</button>
+                </div>
             </div>
         </div>
 
@@ -305,7 +219,7 @@
             <!-- Edit Masjid Details Form -->
             <div class="admin-section">
                 <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Masjid Details</h3>
-                <form id="edit-masjid-details-form">
+                <form id="edit-masjid-details-form-masjid-admin"> <!-- Renamed ID to avoid conflict -->
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -314,55 +228,56 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><label for="edit-masjid-name">Masjid Name:</label></td>
-                                <td><input type="text" id="edit-masjid-name" required></td>
+                                <td><label for="edit-masjid-name-ma">Masjid Name:</label></td>
+                                <td><input type="text" id="edit-masjid-name-ma" required></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-contact">Contact Number:</label></td>
-                                <td><input type="tel" id="edit-masjid-contact"></td>
+                                <td><label for="edit-masjid-contact-ma">Contact Number:</label></td>
+                                <td><input type="tel" id="edit-masjid-contact-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-email">Email:</label></td>
-                                <td><input type="email" id="edit-masjid-email"></td>
+                                <td><label for="edit-masjid-email-ma">Email:</label></td>
+                                <td><input type="email" id="edit-masjid-email-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-address">Address:</label></td>
-                                <td><input type="text" id="edit-masjid-address"></td>
+                                <td><label for="edit-masjid-address-ma">Address:</label></td>
+                                <td><input type="text" id="edit-masjid-address-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-area">Area:</label></td>
-                                <td><input type="text" id="edit-masjid-area"></td>
+                                <td><label for="edit-masjid-area-ma">Area:</label></td>
+                                <td><input type="text" id="edit-masjid-area-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-zipcode">Zipcode:</label></td>
-                                <td><input type="text" id="edit-masjid-zipcode"></td>
+                                <td><label for="edit-masjid-zipcode-ma">Zipcode:</label></td>
+                                <td><input type="text" id="edit-masjid-zipcode-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-city">City:</label></td>
-                                <td><input type="text" id="edit-masjid-city"></td>
+                                <td><label for="edit-masjid-city-ma">City:</label></td>
+                                <td><input type="text" id="edit-masjid-city-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-country">Country:</label></td>
-                                <td><input type="text" id="edit-masjid-country"></td>
+                                <td><label for="edit-masjid-country-ma">Country:</label></td>
+                                <td><input type="text" id="edit-masjid-country-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-latitude">Latitude:</label></td>
-                                <td><input type="number" step="any" id="edit-masjid-latitude"></td>
+                                <td><label for="edit-masjid-latitude-ma">Latitude:</label></td>
+                                <td><input type="number" step="any" id="edit-masjid-latitude-ma"></td>
                             </tr>
                             <tr>
-                                <td><label for="edit-masjid-longitude">Longitude:</label></td>
-                                <td><input type="number" step="any" id="edit-masjid-longitude"></td>
+                                <td><label for="edit-masjid-longitude-ma">Longitude:</label></td>
+                                <td><input type="number" step="any" id="edit-masjid-longitude-ma"></td>
                             </tr>
                         </tbody>
                     </table>
                     <button type="submit" class="admin-button mt-4">Save Masjid Details</button>
+                    <button type="button" class="danger-button mt-4 ml-2" onclick="document.getElementById('edit-masjid-details-form-masjid-admin').reset()">Reset</button>
                 </form>
             </div>
 
             <!-- Edit Prayer Times Form -->
             <div class="admin-section">
                 <h3 class="text-lg font-medium text-gray-700 mb-4">Edit Prayer Times</h3>
-                <form id="edit-prayer-times-form">
+                <form id="edit-prayer-times-form-masjid-admin"> <!-- Renamed ID to avoid conflict -->
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -374,37 +289,38 @@
                         <tbody>
                             <tr>
                                 <td>Fajr</td>
-                                <td><input type="time" id="fajr-azan"></td>
-                                <td><input type="time" id="fajr-prayer"></td>
+                                <td><input type="time" id="fajr-azan-ma"></td>
+                                <td><input type="time" id="fajr-prayer-ma"></td>
                             </tr>
                             <tr>
                                 <td>Dhuhr</td>
-                                <td><input type="time" id="dhuhr-azan"></td>
-                                <td><input type="time" id="dhuhr-prayer"></td>
+                                <td><input type="time" id="dhuhr-azan-ma"></td>
+                                <td><input type="time" id="dhuhr-prayer-ma"></td>
                             </tr>
                             <tr>
                                 <td>Asr</td>
-                                <td><input type="time" id="asr-azan"></td>
-                                <td><input type="time" id="asr-prayer"></td>
+                                <td><input type="time" id="asr-azan-ma"></td>
+                                <td><input type="time" id="asr-prayer-ma"></td>
                             </tr>
                             <tr>
                                 <td>Maghrib</td>
-                                <td><input type="time" id="maghrib-azan"></td>
-                                <td><input type="time" id="maghrib-prayer"></td>
+                                <td><input type="time" id="maghrib-azan-ma"></td>
+                                <td><input type="time" id="maghrib-prayer-ma"></td>
                             </tr>
                             <tr>
                                 <td>Isha</td>
-                                <td><input type="time" id="isha-azan"></td>
-                                <td><input type="time" id="isha-prayer"></td>
+                                <td><input type="time" id="isha-azan-ma"></td>
+                                <td><input type="time" id="isha-prayer-ma"></td>
                             </tr>
                             <tr>
                                 <td>Jumuah</td>
-                                <td><input type="time" id="jumuah-azan"></td>
-                                <td><input type="time" id="jumuah-prayer"></td>
+                                <td><input type="time" id="jumuah-azan-ma"></td>
+                                <td><input type="time" id="jumuah-prayer-ma"></td>
                             </tr>
                         </tbody>
                     </table>
                     <button type="submit" class="admin-button mt-4">Save Prayer Times</button>
+                    <button type="button" class="danger-button mt-4 ml-2" onclick="document.getElementById('edit-prayer-times-form-masjid-admin').reset()">Reset</button>
                 </form>
             </div>
         </div>
@@ -444,25 +360,35 @@
         const masjidAdminPanel = document.getElementById('masjid-admin-panel');
         const managedMasjidNameSpan = document.getElementById('managed-masjid-name');
 
-        // Super Admin Elements
-        const selectMasjidSuper = document.getElementById('select-masjid-super');
-        const loadMasjidDataSuperBtn = document.getElementById('load-masjid-data-super');
-        const addMasjidForm = document.getElementById('add-masjid-form');
-        const editCityDefaultsForm = document.getElementById('edit-city-defaults-form');
+        // Super Admin Elements (Consolidated & Filtered)
+        const filterState = document.getElementById('filter-state');
+        const filterCity = document.getElementById('filter-city');
+        const filterArea = document.getElementById('filter-area');
+        const selectMasjidSuper = document.getElementById('select-masjid-super'); // Now the input for datalist
+        const masjidListOptions = document.getElementById('masjid-list-options'); // The datalist element
+        const addNewMasjidBtn = document.getElementById('add-new-masjid-btn'); // New button for adding
+        const saveAllChangesBtn = document.getElementById('save-all-changes-btn'); // New consolidated save button
 
-        // These sections will be shown/hidden for Super Admin
-        const superAdminEditDetailsSection = document.getElementById('super-admin-edit-details-section');
-        const superAdminEditPrayerTimesSection = document.getElementById('super-admin-edit-prayer-times-section');
+        // Consolidated Masjid Details Form Elements
+        const masjidDetailsSection = document.getElementById('masjid-details-section');
+        const masjidDetailsHeader = document.getElementById('masjid-details-header');
+        const masjidDetailsForm = document.getElementById('masjid-details-form');
+        const masjidIdInput = document.getElementById('masjid-id');
+        const masjidIdRow = document.getElementById('masjid-id-row'); // To hide/show masjid ID row
 
-        // Masjid Admin / Shared Edit Elements
-        const editMasjidDetailsForm = document.getElementById('edit-masjid-details-form');
-        const editPrayerTimesForm = document.getElementById('edit-prayer-times-form');
+        // Consolidated Prayer Times Form Elements
+        const prayerTimesSection = document.getElementById('prayer-times-section');
+        const prayerTimesForm = document.getElementById('prayer-times-form');
+
+        // Masjid Admin Specific Forms (IDs renamed to avoid conflict with Super Admin's consolidated forms)
+        const masjidAdminMasjidDetailsForm = document.getElementById('edit-masjid-details-form-masjid-admin');
+        const masjidAdminPrayerTimesForm = document.getElementById('edit-prayer-times-form-masjid-admin');
+
 
         let currentUserRole = null;
         let currentUserMasjidId = null;
-        let selectedMasjidIdForEdit = null; // Used by Super Admin to select which masjid to edit
-
-        const CITY_DEFAULT_ID = 'bengaluru'; // Consistent with index.html
+        let selectedMasjidIdForEdit = null; // null means 'add new', a string means 'edit existing'
+        let allMasjidsData = []; // To store all masjids for search functionality
 
         // --- Helper Functions for UI Messages ---
         function showMessage(element, message, type = 'success') {
@@ -548,7 +474,8 @@
                     showMessage(errorMessage, `Masjid with ID ${masjidId} not found.`, 'error');
                     return null;
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error(`Error fetching masjid details for ${masjidId}:`, error);
                 showMessage(errorMessage, `Failed to load details for ${masjidId}.`, 'error');
                 return null;
@@ -572,21 +499,116 @@
             }
         }
 
-        async function fetchCityDefaults() {
-            try {
-                const docRef = doc(db, 'cityDefaults', CITY_DEFAULT_ID);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    return docSnap.data();
-                } else {
-                    showMessage(errorMessage, `City defaults for ${CITY_DEFAULT_ID} not found.`, 'error');
-                    return null;
-                }
-            } catch (error) {
-                console.error(`Error fetching city defaults for ${CITY_DEFAULT_ID}:`, error);
-                showMessage(errorMessage, `Failed to load city defaults.`, 'error');
-                return null;
+        // Function to populate the State dropdown
+        function populateStates() {
+            const states = [...new Set(allMasjidsData.map(m => m.state).filter(Boolean))].sort();
+            filterState.innerHTML = '<option value="">All States</option>';
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                filterState.appendChild(option);
+            });
+        }
+
+        // Function to filter and populate City dropdown
+        function filterCities() {
+            const selectedState = filterState.value;
+            filterCity.innerHTML = '<option value="">All Cities</option>';
+            filterCity.disabled = !selectedState;
+            filterArea.innerHTML = '<option value="">All Areas</option>';
+            filterArea.disabled = true;
+            selectMasjidSuper.value = ''; // Clear masjid selection
+
+            let cities = [];
+            if (selectedState) {
+                cities = [...new Set(allMasjidsData
+                    .filter(m => m.state === selectedState)
+                    .map(m => m.city).filter(Boolean))].sort();
             }
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                filterCity.appendChild(option);
+            });
+            filterMasjids(); // Re-filter masjids based on new city list
+        }
+
+        // Function to filter and populate Area dropdown
+        function filterAreas() {
+            const selectedState = filterState.value;
+            const selectedCity = filterCity.value;
+            filterArea.innerHTML = '<option value="">All Areas</option>';
+            filterArea.disabled = !selectedCity;
+            selectMasjidSuper.value = ''; // Clear masjid selection
+
+            let areas = [];
+            if (selectedState && selectedCity) {
+                areas = [...new Set(allMasjidsData
+                    .filter(m => m.state === selectedState && m.city === selectedCity)
+                    .map(m => m.area).filter(Boolean))].sort();
+            }
+            areas.forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                filterArea.appendChild(option);
+            });
+            filterMasjids(); // Re-filter masjids based on new area list
+        }
+
+        // Function to filter and populate Masjid Datalist
+        function filterMasjids() {
+            const selectedState = filterState.value;
+            const selectedCity = filterCity.value;
+            const selectedArea = filterArea.value;
+
+            let filteredMasjids = allMasjidsData;
+
+            if (selectedState) {
+                filteredMasjids = filteredMasjids.filter(m => m.state === selectedState);
+            }
+            if (selectedCity) {
+                filteredMasjids = filteredMasjids.filter(m => m.city === selectedCity);
+            }
+            if (selectedArea) {
+                filteredMasjids = filteredMasjids.filter(m => m.area === selectedArea);
+            }
+            
+            populateMasjidDatalist(filteredMasjids);
+            // Clear current selection and forms if filters change
+            selectMasjidSuper.value = '';
+            clearAndHideMasjidForms();
+        }
+
+        // Function to populate the masjid datalist
+        function populateMasjidDatalist(masjidsToDisplay) {
+            masjidListOptions.innerHTML = ''; // Clear existing options
+            masjidsToDisplay.forEach(masjid => {
+                const option = document.createElement('option');
+                option.value = masjid.name; // Display name in input
+                option.dataset.masjidId = masjid.id; // Store ID in dataset
+                masjidListOptions.appendChild(option);
+            });
+        }
+
+        // Function to clear and hide consolidated forms
+        function clearAndHideMasjidForms() {
+            masjidDetailsForm.reset();
+            prayerTimesForm.reset();
+            masjidDetailsSection.classList.add('hidden');
+            prayerTimesSection.classList.add('hidden');
+            selectedMasjidIdForEdit = null; // Reset for new entry
+            toggleMasjidIdInput(true); // Ensure Masjid ID is editable for new entry
+            masjidDetailsHeader.textContent = 'Masjid Details'; // Reset header
+        }
+
+        // Function to toggle Masjid ID input readonly state
+        function toggleMasjidIdInput(isEditable) {
+            masjidIdInput.readOnly = !isEditable;
+            masjidIdInput.classList.toggle('bg-gray-100', !isEditable);
+            masjidIdInput.classList.toggle('cursor-not-allowed', !isEditable);
         }
 
         // --- UI Rendering Functions ---
@@ -595,37 +617,15 @@
             masjidAdminPanel.classList.add('hidden');
             hideLoading();
 
-            // Populate select dropdown for super admin
-            const masjids = await fetchAllMasjids();
-            selectMasjidSuper.innerHTML = '<option value="">-- Select a Masjid --</option>';
-            masjids.forEach(masjid => {
-                const option = document.createElement('option');
-                option.value = masjid.id;
-                option.textContent = masjid.name;
-                selectMasjidSuper.appendChild(option);
-            });
+            // Fetch all masjids and store them
+            allMasjidsData = await fetchAllMasjids();
+            populateStates(); // Populate states first
+            filterCities(); // Then cities based on state (or all if no state selected)
+            filterAreas(); // Then areas based on city (or all if no city selected)
+            populateMasjidDatalist(allMasjidsData); // Populate datalist with all masjids initially
 
-            // Load city defaults into form
-            const cityDefaults = await fetchCityDefaults();
-            if (cityDefaults) {
-                // Populate Azan and Prayer time fields for city defaults
-                document.getElementById('city-fajr-azan').value = cityDefaults.FajrAzan || '';
-                document.getElementById('city-fajr-prayer').value = cityDefaults.FajrPrayer || '';
-                document.getElementById('city-dhuhr-azan').value = cityDefaults.DhuhrAzan || '';
-                document.getElementById('city-dhuhr-prayer').value = cityDefaults.DhuhrPrayer || '';
-                document.getElementById('city-asr-azan').value = cityDefaults.AsrAzan || '';
-                document.getElementById('city-asr-prayer').value = cityDefaults.AsrPrayer || '';
-                document.getElementById('city-maghrib-azan').value = cityDefaults.MaghribAzan || '';
-                document.getElementById('city-maghrib-prayer').value = cityDefaults.MaghribPrayer || '';
-                document.getElementById('city-isha-azan').value = cityDefaults.IshaAzan || '';
-                document.getElementById('city-isha-prayer').value = cityDefaults.IshaPrayer || '';
-                document.getElementById('city-jumuah-azan').value = cityDefaults.JumuahAzan || '';
-                document.getElementById('city-jumuah-prayer').value = cityDefaults.JumuahPrayer || '';
-            }
-
-            // Initially hide the shared edit forms for Super Admin until a masjid is selected
-            superAdminEditDetailsSection.classList.add('hidden');
-            superAdminEditPrayerTimesSection.classList.add('hidden');
+            // Initially hide the consolidated forms
+            clearAndHideMasjidForms();
         }
 
         async function renderMasjidAdminPanel() {
@@ -645,35 +645,35 @@
 
             if (masjidDetails) {
                 managedMasjidNameSpan.textContent = masjidDetails.name;
-                // Populate Masjid Details Form
-                document.getElementById('edit-masjid-name').value = masjidDetails.name || '';
-                document.getElementById('edit-masjid-contact').value = masjidDetails.contactNumber || '';
-                document.getElementById('edit-masjid-email').value = masjidDetails.email || '';
-                document.getElementById('edit-masjid-address').value = masjidDetails.address || '';
-                document.getElementById('edit-masjid-area').value = masjidDetails.area || '';
-                document.getElementById('edit-masjid-zipcode').value = masjidDetails.zipcode || '';
-                document.getElementById('edit-masjid-city').value = masjidDetails.city || '';
-                document.getElementById('edit-masjid-country').value = masjidDetails.country || '';
-                document.getElementById('edit-masjid-latitude').value = masjidDetails.latitude || '';
-                document.getElementById('edit-masjid-longitude').value = masjidDetails.longitude || '';
+                // Populate Masjid Details Form for Masjid Admin
+                document.getElementById('edit-masjid-name-ma').value = masjidDetails.name || '';
+                document.getElementById('edit-masjid-contact-ma').value = masjidDetails.contactNumber || '';
+                document.getElementById('edit-masjid-email-ma').value = masjidDetails.email || '';
+                document.getElementById('edit-masjid-address-ma').value = masjidDetails.address || '';
+                document.getElementById('edit-masjid-area-ma').value = masjidDetails.area || '';
+                document.getElementById('edit-masjid-zipcode-ma').value = masjidDetails.zipcode || '';
+                document.getElementById('edit-masjid-city-ma').value = masjidDetails.city || '';
+                document.getElementById('edit-masjid-country-ma').value = masjidDetails.country || '';
+                document.getElementById('edit-masjid-latitude-ma').value = masjidDetails.latitude || '';
+                document.getElementById('edit-masjid-longitude-ma').value = masjidDetails.longitude || '';
             } else {
                 showMessage(errorMessage, `Could not load details for your bonded masjid (${currentUserMasjidId}).`, 'error');
             }
 
             if (prayerTimes) {
-                // Populate Prayer Times Form
-                document.getElementById('fajr-azan').value = prayerTimes.FajrAzan || '';
-                document.getElementById('fajr-prayer').value = prayerTimes.FajrPrayer || '';
-                document.getElementById('dhuhr-azan').value = prayerTimes.DhuhrAzan || '';
-                document.getElementById('dhuhr-prayer').value = prayerTimes.DhuhrPrayer || '';
-                document.getElementById('asr-azan').value = prayerTimes.AsrAzan || '';
-                document.getElementById('asr-prayer').value = prayerTimes.AsrPrayer || '';
-                document.getElementById('maghrib-azan').value = prayerTimes.MaghribAzan || '';
-                document.getElementById('maghrib-prayer').value = prayerTimes.MaghribPrayer || '';
-                document.getElementById('isha-azan').value = prayerTimes.IshaAzan || '';
-                document.getElementById('isha-prayer').value = prayerTimes.IshaPrayer || '';
-                document.getElementById('jumuah-azan').value = prayerTimes.JumuahAzan || '';
-                document.getElementById('jumuah-prayer').value = prayerTimes.JumuahPrayer || '';
+                // Populate Prayer Times Form for Masjid Admin
+                document.getElementById('fajr-azan-ma').value = prayerTimes.FajrAzan || '';
+                document.getElementById('fajr-prayer-ma').value = prayerTimes.FajrPrayer || '';
+                document.getElementById('dhuhr-azan-ma').value = prayerTimes.DhuhrAzan || '';
+                document.getElementById('dhuhr-prayer-ma').value = prayerTimes.DhuhrPrayer || '';
+                document.getElementById('asr-azan-ma').value = prayerTimes.AsrAzan || '';
+                document.getElementById('asr-prayer-ma').value = prayerTimes.AsrPrayer || '';
+                document.getElementById('maghrib-azan-ma').value = prayerTimes.MaghribAzan || '';
+                document.getElementById('maghrib-prayer-ma').value = prayerTimes.MaghribPrayer || '';
+                document.getElementById('isha-azan-ma').value = prayerTimes.IshaAzan || '';
+                document.getElementById('isha-prayer-ma').value = prayerTimes.IshaPrayer || '';
+                document.getElementById('jumuah-azan-ma').value = prayerTimes.JumuahAzan || '';
+                document.getElementById('jumuah-prayer-ma').value = prayerTimes.JumuahPrayer || '';
             } else {
                 showMessage(errorMessage, `Could not load prayer times for your bonded masjid (${currentUserMasjidId}).`, 'error');
             }
@@ -681,206 +681,152 @@
 
         // --- Event Handlers ---
 
-        // Handle Super Admin's Masjid Selection for Editing
-        loadMasjidDataSuperBtn.addEventListener('click', async () => {
-            selectedMasjidIdForEdit = selectMasjidSuper.value;
-            if (!selectedMasjidIdForEdit) {
-                showMessage(errorMessage, 'Please select a masjid to load its data.', 'error');
-                // Hide the edit forms if nothing is selected
-                superAdminEditDetailsSection.classList.add('hidden');
-                superAdminEditPrayerTimesSection.classList.add('hidden');
-                return;
-            }
-            showLoading();
-            const masjidDetails = await fetchMasjidDetails(selectedMasjidIdForEdit);
-            const prayerTimes = await fetchPrayerTimes(selectedMasjidIdForEdit);
-            hideLoading();
+        // Filter dropdown change listeners
+        filterState.addEventListener('change', filterCities);
+        filterCity.addEventListener('change', filterAreas);
+        filterArea.addEventListener('change', filterMasjids);
 
-            if (masjidDetails) {
-                // Populate the shared edit forms with selected masjid's data
-                document.getElementById('edit-masjid-name').value = masjidDetails.name || '';
-                document.getElementById('edit-masjid-contact').value = masjidDetails.contactNumber || '';
-                document.getElementById('edit-masjid-email').value = masjidDetails.email || '';
-                document.getElementById('edit-masjid-address').value = masjidDetails.address || '';
-                document.getElementById('edit-masjid-area').value = masjidDetails.area || '';
-                document.getElementById('edit-masjid-zipcode').value = masjidDetails.zipcode || '';
-                document.getElementById('edit-masjid-city').value = masjidDetails.city || '';
-                document.getElementById('edit-masjid-country').value = masjidDetails.country || '';
-                document.getElementById('edit-masjid-latitude').value = masjidDetails.latitude || '';
-                document.getElementById('edit-masjid-longitude').value = masjidDetails.longitude || '';
-                showMessage(successMessage, `Data for ${masjidDetails.name} loaded successfully.`);
-            } else {
-                // Clear forms if data not found
-                editMasjidDetailsForm.reset();
-            }
 
-            if (prayerTimes) {
-                document.getElementById('fajr-azan').value = prayerTimes.FajrAzan || '';
-                document.getElementById('fajr-prayer').value = prayerTimes.FajrPrayer || '';
-                document.getElementById('dhuhr-azan').value = prayerTimes.DhuhrAzan || '';
-                document.getElementById('dhuhr-prayer').value = prayerTimes.DhuhrPrayer || '';
-                document.getElementById('asr-azan').value = prayerTimes.AsrAzan || '';
-                document.getElementById('asr-prayer').value = prayerTimes.AsrPrayer || '';
-                document.getElementById('maghrib-azan').value = prayerTimes.MaghribAzan || '';
-                document.getElementById('maghrib-prayer').value = prayerTimes.MaghribPrayer || '';
-                document.getElementById('isha-azan').value = prayerTimes.IshaAzan || '';
-                document.getElementById('isha-prayer').value = prayerTimes.IshaPrayer || '';
-                document.getElementById('jumuah-azan').value = prayerTimes.JumuahAzan || '';
-                document.getElementById('jumuah-prayer').value = prayerTimes.JumuahPrayer || '';
-            } else {
-                editPrayerTimesForm.reset();
-            }
-            // Show the shared edit forms for Super Admin
-            superAdminEditDetailsSection.classList.remove('hidden');
-            superAdminEditPrayerTimesSection.classList.remove('hidden');
-        });
-
-        // Add New Masjid Form Submission (Super Admin Only)
-        addMasjidForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideAllMessages();
-            showLoading();
-
-            const newMasjidId = document.getElementById('new-masjid-id').value.trim();
-            const newMasjidName = document.getElementById('new-masjid-name').value.trim();
-
-            if (!newMasjidId || !newMasjidName) {
-                showMessage(errorMessage, 'Masjid ID and Name are required.', 'error');
+        // Handle selection from datalist (Super Admin) - Auto-load
+        selectMasjidSuper.addEventListener('input', async () => {
+            const selectedOption = Array.from(masjidListOptions.options).find(
+                option => option.value === selectMasjidSuper.value
+            );
+            if (selectedOption) {
+                selectedMasjidIdForEdit = selectedOption.dataset.masjidId;
+                // Auto-load data when a valid selection is made
+                showLoading();
+                const masjidDetails = await fetchMasjidDetails(selectedMasjidIdForEdit);
+                const prayerTimes = await fetchPrayerTimes(selectedMasjidIdForEdit);
                 hideLoading();
-                return;
-            }
 
-            try {
-                // Check if masjid ID already exists
-                const existingMasjid = await getDoc(doc(db, 'masjids', newMasjidId));
-                if (existingMasjid.exists()) {
-                    showMessage(errorMessage, `Masjid ID '${newMasjidId}' already exists. Please choose a different one.`, 'error');
-                    hideLoading();
-                    return;
-                }
-
-                await setDoc(doc(db, 'masjids', newMasjidId), {
-                    name: newMasjidName,
-                    contactNumber: document.getElementById('new-masjid-contact').value.trim(),
-                    email: document.getElementById('new-masjid-email').value.trim(),
-                    address: document.getElementById('new-masjid-address').value.trim(),
-                    area: document.getElementById('new-masjid-area').value.trim(),
-                    zipcode: document.getElementById('new-masjid-zipcode').value.trim(),
-                    city: document.getElementById('new-masjid-city').value.trim(),
-                    country: document.getElementById('new-masjid-country').value.trim(),
-                    latitude: parseFloat(document.getElementById('new-masjid-latitude').value) || null,
-                    longitude: parseFloat(document.getElementById('new-masjid-longitude').value) || null,
-                });
-
-                // Also create an empty prayerTimes document for the new masjid
-                await setDoc(doc(db, 'prayerTimes', newMasjidId), {
-                    FajrAzan: "", FajrPrayer: "",
-                    DhuhrAzan: "", DhuhrPrayer: "",
-                    AsrAzan: "", AsrPrayer: "",
-                    MaghribAzan: "", MaghribPrayer: "",
-                    IshaAzan: "", IshaPrayer: "",
-                    JumuahAzan: "", JumuahPrayer: ""
-                });
-
-                showMessage(successMessage, `Masjid '${newMasjidName}' added successfully!`, 'success');
-                addMasjidForm.reset();
-                await renderSuperAdminPanel(); // Re-populate dropdown
-            } catch (error) {
-                console.error("Error adding new masjid:", error);
-                showMessage(errorMessage, `Failed to add masjid: ${error.message}`, 'error');
-            } finally {
-                hideLoading();
-            }
-        });
-
-        // Edit City Defaults Form Submission (Super Admin Only)
-        editCityDefaultsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideAllMessages();
-            showLoading();
-
-            try {
-                // Update with Azan and Prayer times for city defaults
-                await updateDoc(doc(db, 'cityDefaults', CITY_DEFAULT_ID), {
-                    FajrAzan: document.getElementById('city-fajr-azan').value,
-                    FajrPrayer: document.getElementById('city-fajr-prayer').value,
-                    DhuhrAzan: document.getElementById('city-dhuhr-azan').value,
-                    DhuhrPrayer: document.getElementById('city-dhuhr-prayer').value,
-                    AsrAzan: document.getElementById('city-asr-azan').value,
-                    AsrPrayer: document.getElementById('city-asr-prayer').value,
-                    MaghribAzan: document.getElementById('city-maghrib-azan').value,
-                    MaghribPrayer: document.getElementById('city-maghrib-prayer').value,
-                    IshaAzan: document.getElementById('city-isha-azan').value,
-                    IshaPrayer: document.getElementById('city-isha-prayer').value,
-                    JumuahAzan: document.getElementById('city-jumuah-azan').value,
-                    JumuahPrayer: document.getElementById('city-jumuah-prayer').value,
-                });
-                showMessage(successMessage, 'City default Azan and Prayer times updated successfully!', 'success');
-            } catch (error) {
-                console.error("Error updating city defaults:", error);
-                showMessage(errorMessage, `Failed to update city defaults: ${error.message}`, 'error');
-            } finally {
-                hideLoading();
-            }
-        });
-
-        // Edit Masjid Details Form Submission (Shared by Super and Masjid Admin)
-        editMasjidDetailsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideAllMessages();
-            showLoading();
-
-            const targetMasjidId = currentUserRole === 'superAdmin' ? selectedMasjidIdForEdit : currentUserMasjidId;
-
-            if (!targetMasjidId) {
-                showMessage(errorMessage, 'No masjid selected/linked for editing.', 'error');
-                hideLoading();
-                return;
-            }
-
-            try {
-                await updateDoc(doc(db, 'masjids', targetMasjidId), {
-                    name: document.getElementById('edit-masjid-name').value.trim(),
-                    contactNumber: document.getElementById('edit-masjid-contact').value.trim(),
-                    email: document.getElementById('edit-masjid-email').value.trim(),
-                    address: document.getElementById('edit-masjid-address').value.trim(),
-                    area: document.getElementById('edit-masjid-area').value.trim(),
-                    zipcode: document.getElementById('edit-masjid-zipcode').value.trim(),
-                    city: document.getElementById('edit-masjid-city').value.trim(),
-                    country: document.getElementById('edit-masjid-country').value.trim(),
-                    latitude: parseFloat(document.getElementById('edit-masjid-latitude').value) || null,
-                    longitude: parseFloat(document.getElementById('edit-masjid-longitude').value) || null,
-                });
-                showMessage(successMessage, 'Masjid details updated successfully!', 'success');
-                if (currentUserRole === 'superAdmin') {
-                    await renderSuperAdminPanel(); // Re-populate dropdown to reflect name change
+                if (masjidDetails) {
+                    masjidIdInput.value = masjidDetails.id || '';
+                    document.getElementById('masjid-name').value = masjidDetails.name || '';
+                    document.getElementById('masjid-contact').value = masjidDetails.contactNumber || '';
+                    document.getElementById('masjid-email').value = masjidDetails.email || '';
+                    document.getElementById('masjid-address').value = masjidDetails.address || '';
+                    document.getElementById('masjid-area').value = masjidDetails.area || '';
+                    document.getElementById('masjid-zipcode').value = masjidDetails.zipcode || '';
+                    document.getElementById('masjid-city').value = masjidDetails.city || '';
+                    document.getElementById('masjid-country').value = masjidDetails.country || '';
+                    document.getElementById('masjid-latitude').value = masjidDetails.latitude || '';
+                    document.getElementById('masjid-longitude').value = masjidDetails.longitude || '';
+                    
+                    toggleMasjidIdInput(false); // Make Masjid ID read-only when editing
+                    masjidDetailsHeader.textContent = `Edit Masjid Details for ${masjidDetails.name}`;
+                    showMessage(successMessage, `Data for ${masjidDetails.name} loaded successfully.`);
                 } else {
-                    await renderMasjidAdminPanel(); // Re-render to update name in header
+                    masjidDetailsForm.reset();
+                    toggleMasjidIdInput(true); // Make Masjid ID editable if not found
+                    masjidDetailsHeader.textContent = 'Masjid Details';
                 }
-            } catch (error) {
-                console.error("Error updating masjid details:", error);
-                showMessage(errorMessage, `Failed to update masjid details: ${error.message}`, 'error');
-            } finally {
-                hideLoading();
+
+                if (prayerTimes) {
+                    document.getElementById('fajr-azan').value = prayerTimes.FajrAzan || '';
+                    document.getElementById('fajr-prayer').value = prayerTimes.FajrPrayer || '';
+                    document.getElementById('dhuhr-azan').value = prayerTimes.DhuhrAzan || '';
+                    document.getElementById('dhuhr-prayer').value = prayerTimes.DhuhrPrayer || '';
+                    document.getElementById('asr-azan').value = prayerTimes.AsrAzan || '';
+                    document.getElementById('asr-prayer').value = prayerTimes.AsrPrayer || '';
+                    document.getElementById('maghrib-azan').value = prayerTimes.MaghribAzan || '';
+                    document.getElementById('maghrib-prayer').value = prayerTimes.MaghribPrayer || '';
+                    document.getElementById('isha-azan').value = prayerTimes.IshaAzan || '';
+                    document.getElementById('isha-prayer').value = prayerTimes.IshaPrayer || '';
+                    document.getElementById('jumuah-azan').value = prayerTimes.JumuahAzan || '';
+                    document.getElementById('jumuah-prayer').value = prayerTimes.JumuahPrayer || '';
+                } else {
+                    prayerTimesForm.reset();
+                }
+                // Show the consolidated forms
+                masjidDetailsSection.classList.remove('hidden');
+                prayerTimesSection.classList.remove('hidden');
+            } else {
+                selectedMasjidIdForEdit = null; // No valid selection, reset
+                clearAndHideMasjidForms();
             }
         });
 
-        // Edit Prayer Times Form Submission (Shared by Super and Masjid Admin)
-        editPrayerTimesForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Add New Masjid button click (Super Admin)
+        addNewMasjidBtn.addEventListener('click', () => {
+            clearAndHideMasjidForms(); // Clear and hide forms first
+            toggleMasjidIdInput(true); // Ensure Masjid ID is editable
+            masjidDetailsSection.classList.remove('hidden'); // Show details section
+            prayerTimesSection.classList.remove('hidden'); // Show prayer times section
+            masjidDetailsHeader.textContent = 'Add New Masjid Details'; // Update header
+            selectMasjidSuper.value = ''; // Clear search/select input
+            showMessage(successMessage, 'Ready to add a new masjid. Please fill in the details.');
+        });
+
+        // Consolidated Save All Changes button
+        saveAllChangesBtn.addEventListener('click', async () => {
             hideAllMessages();
             showLoading();
 
-            const targetMasjidId = currentUserRole === 'superAdmin' ? selectedMasjidIdForEdit : currentUserMasjidId;
+            const masjidId = masjidIdInput.value.trim();
+            const masjidName = document.getElementById('masjid-name').value.trim();
 
-            if (!targetMasjidId) {
-                showMessage(errorMessage, 'No masjid selected/linked for editing prayer times.', 'error');
+            if (!masjidId || !masjidName) {
+                showMessage(errorMessage, 'Masjid ID and Name are required for saving.', 'error');
                 hideLoading();
                 return;
             }
 
             try {
-                await updateDoc(doc(db, 'prayerTimes', targetMasjidId), {
+                // Save Masjid Details
+                if (selectedMasjidIdForEdit) { // Editing existing masjid
+                    await updateDoc(doc(db, 'masjids', masjidId), {
+                        name: masjidName,
+                        contactNumber: document.getElementById('masjid-contact').value.trim(),
+                        email: document.getElementById('masjid-email').value.trim(),
+                        address: document.getElementById('masjid-address').value.trim(),
+                        area: document.getElementById('masjid-area').value.trim(),
+                        zipcode: document.getElementById('masjid-zipcode').value.trim(),
+                        city: document.getElementById('masjid-city').value.trim(),
+                        country: document.getElementById('masjid-country').value.trim(),
+                        latitude: parseFloat(document.getElementById('masjid-latitude').value) || null,
+                        longitude: parseFloat(document.getElementById('masjid-longitude').value) || null,
+                        state: filterState.value || null, // Add state from filter
+                        city: filterCity.value || null,   // Add city from filter
+                        area: filterArea.value || null    // Add area from filter
+                    });
+                    showMessage(successMessage, `Masjid '${masjidName}' details updated successfully!`);
+                } else { // Adding new masjid
+                    const existingMasjid = await getDoc(doc(db, 'masjids', masjidId));
+                    if (existingMasjid.exists()) {
+                        showMessage(errorMessage, `Masjid ID '${masjidId}' already exists. Please choose a different one.`, 'error');
+                        hideLoading();
+                        return;
+                    }
+                    await setDoc(doc(db, 'masjids', masjidId), {
+                        name: masjidName,
+                        contactNumber: document.getElementById('masjid-contact').value.trim(),
+                        email: document.getElementById('masjid-email').value.trim(),
+                        address: document.getElementById('masjid-address').value.trim(),
+                        area: document.getElementById('masjid-area').value.trim(),
+                        zipcode: document.getElementById('masjid-zipcode').value.trim(),
+                        city: document.getElementById('masjid-city').value.trim(),
+                        country: document.getElementById('masjid-country').value.trim(),
+                        latitude: parseFloat(document.getElementById('masjid-latitude').value) || null,
+                        longitude: parseFloat(document.getElementById('masjid-longitude').value) || null,
+                        state: filterState.value || null, // Add state from filter
+                        city: filterCity.value || null,   // Add city from filter
+                        area: filterArea.value || null    // Add area from filter
+                    });
+                    // Also create an empty prayerTimes document for the new masjid
+                    await setDoc(doc(db, 'prayerTimes', masjidId), {
+                        FajrAzan: "", FajrPrayer: "",
+                        DhuhrAzan: "", DhuhrPrayer: "",
+                        AsrAzan: "", AsrPrayer: "",
+                        MaghribAzan: "", MaghribPrayer: "",
+                        IshaAzan: "", IshaPrayer: "",
+                        JumuahAzan: "", JumuahPrayer: ""
+                    });
+                    showMessage(successMessage, `Masjid '${masjidName}' added successfully!`);
+                }
+
+                // Save Prayer Times
+                await updateDoc(doc(db, 'prayerTimes', masjidId), {
                     FajrAzan: document.getElementById('fajr-azan').value,
                     FajrPrayer: document.getElementById('fajr-prayer').value,
                     DhuhrAzan: document.getElementById('dhuhr-azan').value,
@@ -894,14 +840,88 @@
                     JumuahAzan: document.getElementById('jumuah-azan').value,
                     JumuahPrayer: document.getElementById('jumuah-prayer').value,
                 });
+                showMessage(successMessage, 'All changes saved successfully!', 'success');
+                await renderSuperAdminPanel(); // Re-populate dropdowns and reset forms
+            } catch (error) {
+                console.error("Error saving all changes:", error);
+                showMessage(errorMessage, `Failed to save changes: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Masjid Admin Specific Form Submissions (IDs renamed)
+        masjidAdminMasjidDetailsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAllMessages();
+            showLoading();
+            const targetMasjidId = currentUserMasjidId; // Masjid Admin always edits their bonded masjid
+
+            if (!targetMasjidId) {
+                showMessage(errorMessage, 'Your admin account is not linked to a masjid.', 'error');
+                hideLoading();
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'masjids', targetMasjidId), {
+                    name: document.getElementById('edit-masjid-name-ma').value.trim(),
+                    contactNumber: document.getElementById('edit-masjid-contact-ma').value.trim(),
+                    email: document.getElementById('edit-masjid-email-ma').value.trim(),
+                    address: document.getElementById('edit-masjid-address-ma').value.trim(),
+                    area: document.getElementById('edit-masjid-area-ma').value.trim(),
+                    zipcode: document.getElementById('edit-masjid-zipcode-ma').value.trim(),
+                    city: document.getElementById('edit-masjid-city-ma').value.trim(),
+                    country: document.getElementById('edit-masjid-country-ma').value.trim(),
+                    latitude: parseFloat(document.getElementById('edit-masjid-latitude-ma').value) || null,
+                    longitude: parseFloat(document.getElementById('edit-masjid-longitude-ma').value) || null,
+                });
+                showMessage(successMessage, 'Masjid details updated successfully!', 'success');
+                await renderMasjidAdminPanel(); // Re-render to update name in header
+            } catch (error) {
+                console.error("Error updating masjid details for masjid admin:", error);
+                showMessage(errorMessage, `Failed to update masjid details: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        masjidAdminPrayerTimesForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAllMessages();
+            showLoading();
+            const targetMasjidId = currentUserMasjidId; // Masjid Admin always edits their bonded masjid
+
+            if (!targetMasjidId) {
+                showMessage(errorMessage, 'Your admin account is not linked to a masjid.', 'error');
+                hideLoading();
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'prayerTimes', targetMasjidId), {
+                    FajrAzan: document.getElementById('fajr-azan-ma').value,
+                    FajrPrayer: document.getElementById('fajr-prayer-ma').value,
+                    DhuhrAzan: document.getElementById('dhuhr-azan-ma').value,
+                    DhuhrPrayer: document.getElementById('dhuhr-prayer-ma').value,
+                    AsrAzan: document.getElementById('asr-azan-ma').value,
+                    AsrPrayer: document.getElementById('asr-prayer-ma').value,
+                    MaghribAzan: document.getElementById('maghrib-azan-ma').value,
+                    MaghribPrayer: document.getElementById('maghrib-prayer-ma').value,
+                    IshaAzan: document.getElementById('isha-azan-ma').value,
+                    IshaPrayer: document.getElementById('isha-prayer-ma').value,
+                    JumuahAzan: document.getElementById('jumuah-azan-ma').value,
+                    JumuahPrayer: document.getElementById('jumuah-prayer-ma').value,
+                });
                 showMessage(successMessage, 'Prayer times updated successfully!', 'success');
             } catch (error) {
-                console.error("Error updating prayer times:", error);
+                console.error("Error updating prayer times for masjid admin:", error);
                 showMessage(errorMessage, `Failed to update prayer times: ${error.message}`, 'error');
             } finally {
                 hideLoading();
             }
         });
+
 
         // Logout functionality
         logoutBtn.addEventListener('click', async () => {
