@@ -151,8 +151,7 @@
             <p id="masjid-location-info" class="text-green-100 text-sm mt-1"></p>
         </div>
         <div id="user-auth-section" class="flex items-center space-x-4">
-            <!-- User authentication UI will be dynamically loaded here -->
-        </div>
+            </div>
     </div>
 
     <div class="container mx-auto px-4 py-8 flex-1">
@@ -187,19 +186,27 @@
         </div>
     </footer>
 
-    <!-- Custom Message Box -->
     <div id="custom-message-box" class="hidden"></div>
 
-    <!-- Masjid Details Modal -->
     <div id="masjid-details-modal-overlay" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Masjid Details</h3>
-                <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+                <button id="modal-close-btn" class="modal-close-btn">×</button>
             </div>
             <div id="masjid-details-modal-body" class="modal-body">
-                <!-- Masjid details will be injected here -->
+                </div>
+        </div>
+    </div>
+    
+    <div id="profile-details-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>User Profile</h3>
+                <button id="profile-modal-close-btn" class="modal-close-btn">×</button>
             </div>
+            <div id="profile-details-modal-body" class="modal-body">
+                </div>
         </div>
     </div>
 
@@ -244,7 +251,11 @@
         const currentEnglishDateDisplay = document.getElementById('current-date'); // Renamed from current-time
         const masjidLocationInfo = document.getElementById('masjid-location-info');
         const userCurrentLocationDisplay = document.getElementById('user-current-location');
-
+        
+        // New DOM elements for Profile Modal
+        const profileDetailsModalOverlay = document.getElementById('profile-details-modal-overlay');
+        const profileDetailsModalBody = document.getElementById('profile-details-modal-body');
+        const profileModalCloseBtn = document.getElementById('profile-modal-close-btn');
 
         let currentMasjidDetails = null; // To store details of the currently selected masjid
         let currentUserRole = null; // To store the user's role
@@ -591,6 +602,44 @@
             document.getElementById('duration-left').textContent = durationLeftStr;
         }
 
+        // --- New function to fetch and display user profile details ---
+        async function displayUserProfile() {
+            const user = auth.currentUser;
+            if (!user) {
+                showCustomMessage('You must be logged in to view your profile.', 'error');
+                return;
+            }
+            
+            showCustomMessage('Fetching your profile...', 'info');
+
+            try {
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                let profileHtml = '';
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    profileHtml = `
+                        <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${userData.email || 'N/A'}</p>
+                        <p><strong>Role:</strong> ${userData.role || 'N/A'}</p>
+                        <p><strong>Masjid ID:</strong> ${userData.masjidId || 'N/A'}</p>
+                        <p><strong>User ID:</strong> ${user.uid}</p>
+                        `;
+                } else {
+                    profileHtml = '<p>User details not found.</p>';
+                    console.warn("User document not found in Firestore.");
+                }
+
+                profileDetailsModalBody.innerHTML = profileHtml;
+                profileDetailsModalOverlay.classList.add('show');
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                showCustomMessage('Failed to fetch profile details.', 'error');
+            }
+        }
+        // --- End of new function ---
+
         // --- User Authentication UI Logic ---
         async function updateAuthUI(user) {
             userAuthSection.innerHTML = ''; // Clear existing content
@@ -624,8 +673,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
-                    <span>${displayName.split('@')[0]}</span> <!-- Display username part of email -->
-                `;
+                    <span>${displayName.split('@')[0]}</span> `;
                 userMenuDiv.appendChild(userMenuButton);
 
                 const userMenuDropdown = document.createElement('div');
@@ -707,7 +755,7 @@
                 const showProfileBtn = document.getElementById('show-profile-btn');
                 if (showProfileBtn) {
                     showProfileBtn.addEventListener('click', () => {
-                        showCustomMessage('Show Profile functionality to be implemented.', 'info');
+                        displayUserProfile();
                     });
                 }
                 const settingsBtn = document.getElementById('settings-btn');
@@ -816,6 +864,11 @@
             } else {
                 showCustomMessage('Masjid location not available for directions.', 'error');
             }
+        });
+        
+        // Event listener for profile modal close button
+        profileModalCloseBtn.addEventListener('click', () => {
+            profileDetailsModalOverlay.classList.remove('show');
         });
 
 
